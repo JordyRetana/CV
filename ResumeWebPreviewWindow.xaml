@@ -1,0 +1,68 @@
+<Window x:Class="CVDesktopEditor.ResumeWebPreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="Vista previa Harvard"
+        Height="920"
+        Width="1220"
+        Icon="/Assets/appicon.ico"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="{StaticResource AppBgBrush}">
+
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Background="#0C1324"
+                CornerRadius="18"
+                Padding="22">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock x:Name="TxtHeader"
+                               Text="Vista previa Harvard"
+                               FontSize="30"
+                               FontWeight="Bold"
+                               Foreground="White"/>
+                    <TextBlock x:Name="TxtSubHeader"
+                               Margin="0,8,0,0"
+                               Text="Preview y PDF salen del mismo documento."
+                               FontSize="14"
+                               Foreground="#D0D5DD"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Button x:Name="BtnExportPdf"
+                            Content="Exportar PDF"
+                            Width="150"
+                            Height="42"
+                            Margin="0,0,10,0"
+                            Click="BtnExportPdf_Click"
+                            IsEnabled="False"/>
+                    <Button Content="Cerrar"
+                            Width="110"
+                            Height="42"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Click="BtnClose_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2"
+                Background="{StaticResource CardBrush}"
+                CornerRadius="18"
+                Padding="12">
+            <wv2:WebView2 x:Name="PreviewWebView" />
+        </Border>
+    </Grid>
+</Window>

@@ -1,26 +1,46 @@
-# Generador de CV (Currículum Vitae)
+# CV Desktop Editor
 
-Esta aplicación permite crear currículums de forma rápida, sencilla y con un diseño moderno.  
-El usuario puede ingresar su información y visualizar su CV en tiempo real.
+Aplicacion de escritorio WPF para importar, editar, previsualizar y exportar CVs profesionales compatibles con ATS.
 
-## Descripción
+## Caracteristicas
 
-El sistema está diseñado para facilitar la creación de currículums digitales sin necesidad de conocimientos en diseño.  
-Toda la información se organiza automáticamente en un formato profesional.
+- Importacion de CV desde PDF.
+- Editor por secciones: datos, experiencia, proyectos, educacion y habilidades.
+- Vista previa HTML/PDF.
+- Exportacion PDF con texto seleccionable y estructura ATS friendly.
+- Trial local por usos: 4 exportaciones PDF para CV en espanol y 4 para CV en ingles.
+- Base de licencias preparada para backend.
+- Logging local.
+- Splash screen.
+- Empaquetado con Velopack.
+- Documentacion para Supabase, licencias, updates y despliegue comercial.
 
-## Objetivo
+## Compilar
 
-Permitir a cualquier usuario generar un CV completo y ordenado en pocos minutos, listo para presentar o compartir.
+```powershell
+dotnet restore
+dotnet build CVDesktopEditor.csproj
+```
 
-## Características
+## Crear build Velopack
 
-- Creación de CV en tiempo real
-- Vista previa automática
-- Edición sencilla de información
-- Diseño limpio y profesional
-- Secciones organizadas:
-  - Información personal
-  - Perfil
-  - Experiencia laboral
-  - Educación
-  - Habilidades
+```powershell
+.\scripts\build-velopack.ps1 -Version 0.2.0 -Channel stable
+```
+
+El instalador queda en:
+
+```text
+artifacts\velopack\stable\CVDesktopEditor-win-Setup.exe
+```
+
+## Seguridad
+
+No guardar credenciales reales en el repositorio. Usa variables de entorno o secretos de GitHub Actions.
+
+Ver:
+
+- `docs/CommercialProductPlan.md`
+- `docs/ExternalSetupSteps.md`
+- `docs/SupabaseSetup.md`
+- `docs/LicenseApiContract.md`

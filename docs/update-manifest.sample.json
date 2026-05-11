@@ -1,0 +1,7 @@
+{
+  "version": "0.3.0",
+  "channel": "stable",
+  "releaseNotesUrl": "https://example.com/releases/0.3.0",
+  "installerUrl": "https://example.com/downloads/CVDesktopEditor-0.3.0.exe",
+  "sha256": "REPLACE_WITH_INSTALLER_SHA256"
+}

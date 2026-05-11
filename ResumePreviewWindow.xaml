@@ -1,0 +1,237 @@
+﻿<Window x:Class="CVDesktopEditor.ResumePreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Vista previa del CV"
+        Height="920"
+        Width="1020"
+        Icon="/Assets/appicon.ico"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="{StaticResource AppBgBrush}">
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Background="#0C1324"
+                CornerRadius="18"
+                Padding="22"
+                HorizontalAlignment="Center"
+                MaxWidth="1400">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left">
+                    <TextBlock x:Name="TxtHeader"
+                               Text="Vista previa"
+                               FontSize="30"
+                               FontWeight="Bold"
+                               Foreground="White"/>
+                    <TextBlock x:Name="TxtSubHeader"
+                               Margin="0,8,0,0"
+                               Text="Vista previa estilo Harvard con texto real para ATS."
+                               FontSize="14"
+                               Foreground="{StaticResource MutedBrush}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <Button Content="Exportar PDF Harvard"
+                            Width="180"
+                            Height="42"
+                            Margin="0,0,10,0"
+                            Click="BtnExportPdf_Click"/>
+                    <Button Content="Cerrar"
+                            Width="110"
+                            Height="42"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Click="BtnClose_Click"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="2"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Grid>
+                <Border Background="White"
+                        CornerRadius="16"
+                        TextElement.Foreground="#111827"
+                        Padding="52"
+                        MaxWidth="840"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Top"
+                        Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="{Binding FullName}"
+                                   FontSize="28"
+                                   FontWeight="Bold"
+                                   TextAlignment="Center"/>
+
+                        <TextBlock Text="{Binding ContactLine1}"
+                                   Margin="0,10,0,0"
+                                   FontSize="12"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"/>
+
+                        <TextBlock Text="{Binding ContactLine2}"
+                                   Margin="0,4,0,0"
+                                   FontSize="12"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"/>
+
+                        <StackPanel Margin="0,28,0,0">
+                            <TextBlock Text="{Binding SummaryTitle}"
+                                       FontWeight="Bold"
+                                       FontSize="13"/>
+                            <Separator Margin="0,5,0,10"/>
+                            <TextBlock Text="{Binding ProfessionalSummary}"
+                                       FontSize="13"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,26,0,0">
+                            <TextBlock Text="{Binding ExperienceTitle}"
+                                       FontWeight="Bold"
+                                       FontSize="13"/>
+                            <Separator Margin="0,5,0,10"/>
+
+                            <ItemsControl ItemsSource="{Binding Experience}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="220"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Company}" FontWeight="Bold" FontSize="13"/>
+                                                    <TextBlock Text="{Binding Position}" FontSize="13"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding Location}" FontSize="12" Foreground="{StaticResource MutedBrush}" TextAlignment="Right"/>
+                                                    <TextBlock Text="{Binding Period}" FontSize="12" Foreground="{StaticResource MutedBrush}" TextAlignment="Right"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <ItemsControl ItemsSource="{Binding Responsibilities}" Margin="10,6,0,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Value, StringFormat=• {0}}"
+                                                                   FontSize="12.5"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,2"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,26,0,0">
+                            <TextBlock Text="{Binding ProjectsTitle}"
+                                       FontWeight="Bold"
+                                       FontSize="13"/>
+                            <Separator Margin="0,5,0,10"/>
+
+                            <ItemsControl ItemsSource="{Binding Projects}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="220"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="13"/>
+                                                    <TextBlock Text="{Binding Role}" FontSize="13"/>
+                                                </StackPanel>
+
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding Location}"
+                                                           FontSize="12"
+                                                           Foreground="{StaticResource MutedBrush}"
+                                                           TextAlignment="Right"/>
+                                            </Grid>
+
+                                            <ItemsControl ItemsSource="{Binding Details}" Margin="10,6,0,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Value, StringFormat=• {0}}"
+                                                                   FontSize="12.5"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,2"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,26,0,0">
+                            <TextBlock Text="{Binding EducationTitle}"
+                                       FontWeight="Bold"
+                                       FontSize="13"/>
+                            <Separator Margin="0,5,0,10"/>
+
+                            <ItemsControl ItemsSource="{Binding Education}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="220"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Institution}" FontWeight="Bold" FontSize="13"/>
+                                                    <TextBlock Text="{Binding Degree}" FontSize="13"/>
+                                                    <TextBlock Text="{Binding Description}" FontSize="12.5" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding Location}" FontSize="12" Foreground="{StaticResource MutedBrush}" TextAlignment="Right"/>
+                                                    <TextBlock Text="{Binding Period}" FontSize="12" Foreground="{StaticResource MutedBrush}" TextAlignment="Right"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,26,0,0">
+                            <TextBlock Text="{Binding SkillsTitle}"
+                                       FontWeight="Bold"
+                                       FontSize="13"/>
+                            <Separator Margin="0,5,0,10"/>
+
+                            <ItemsControl ItemsSource="{Binding Skills}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Value, StringFormat=• {0}}"
+                                                   FontSize="12.5"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,2,0,2"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Window>

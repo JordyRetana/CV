@@ -1,0 +1,181 @@
+<Window x:Class="CVDesktopEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CV Desktop Editor"
+        Height="680"
+        Width="1080"
+        Icon="/Assets/appicon.ico"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="{StaticResource AppBgBrush}">
+
+    <Grid Margin="24">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="310"/>
+            <ColumnDefinition Width="22"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Background="#0C1324"
+                CornerRadius="18"
+                Padding="26">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="CV Desktop"
+                               Foreground="White"
+                               FontSize="32"
+                               FontWeight="Bold"/>
+                    <TextBlock Text="Editor"
+                               Foreground="#D6B36A"
+                               FontSize="32"
+                               FontWeight="Bold"
+                               Margin="0,-4,0,0"/>
+                    <TextBlock Text="Importa, corrige y exporta tus CVs desde un solo lugar."
+                               Foreground="#D0D5DD"
+                               TextWrapping="Wrap"
+                               FontSize="14"
+                               Margin="0,18,0,0"/>
+                </StackPanel>
+
+                <Border Grid.Row="1"
+                        Background="#131D31"
+                        BorderBrush="#33405B"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="18"
+                        VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="Estado local"
+                                   Foreground="#F4D58D"
+                                   FontSize="17"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Name="TxtStatus"
+                                   TextWrapping="Wrap"
+                                   Foreground="#F8FAFC"
+                                   FontSize="14"
+                                   LineHeight="22"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Grid.Row="2"
+                           Text="Los datos se guardan en tu equipo."
+                           Foreground="#98A2B3"
+                           FontSize="12"/>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="18"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Background="{StaticResource CardBrush}"
+                    CornerRadius="18"
+                    Padding="26">
+                <StackPanel>
+                    <TextBlock Text="Panel de trabajo"
+                               FontSize="30"
+                               FontWeight="Bold"/>
+                    <TextBlock Text="Sube el PDF, revisa los datos detectados y abre el editor de la version que quieras ajustar."
+                               Margin="0,8,0,0"
+                               FontSize="15"
+                               Foreground="{StaticResource MutedBrush}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Background="{StaticResource CardBrush}"
+                        CornerRadius="18"
+                        Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="Importar PDFs"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="Carga tus archivos originales. La app crea una copia local y trata de ordenar la informacion."
+                                   Foreground="{StaticResource MutedBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,20"/>
+
+                        <Button Name="BtnImportSpanish"
+                                Content="Importar CV espanol"
+                                Height="46"
+                                Margin="0,0,0,12"
+                                Click="BtnImportSpanish_Click"/>
+
+                        <Button Name="BtnImportEnglish"
+                                Content="Importar CV ingles"
+                                Height="46"
+                                Margin="0,0,0,12"
+                                Click="BtnImportEnglish_Click"/>
+
+                        <Button Name="BtnClear"
+                                Content="Limpiar datos guardados"
+                                Height="46"
+                                Style="{StaticResource DangerButtonStyle}"
+                                Click="BtnClear_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Background="{StaticResource CardBrush}"
+                        CornerRadius="18"
+                        Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="Editar y exportar"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="Abre el editor por idioma o revisa el resultado final antes de generar el PDF."
+                                   Foreground="{StaticResource MutedBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,20"/>
+
+                        <Button Name="BtnEditSpanish"
+                                Content="Editar CV en espanol"
+                                Height="46"
+                                Margin="0,0,0,12"
+                                Click="BtnEditSpanish_Click"/>
+
+                        <Button Name="BtnEditEnglish"
+                                Content="Editar CV en ingles"
+                                Height="46"
+                                Margin="0,0,0,12"
+                                Click="BtnEditEnglish_Click"/>
+
+                        <Button Name="BtnPreviewSpanish"
+                                Content="Vista previa espanol"
+                                Height="46"
+                                Margin="0,0,0,12"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Click="BtnPreviewSpanish_Click"/>
+
+                        <Button Name="BtnPreviewEnglish"
+                                Content="Vista previa ingles"
+                                Height="46"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Click="BtnPreviewEnglish_Click"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

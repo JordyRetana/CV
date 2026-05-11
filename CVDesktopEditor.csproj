@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>Assets\appicon.ico</ApplicationIcon>
+		<StartupObject>CVDesktopEditor.Program</StartupObject>
+		<AssemblyName>CVDesktopEditor</AssemblyName>
+		<Product>CV Desktop Editor</Product>
+		<Company>Jordy Retana</Company>
+		<Authors>Jordy Retana</Authors>
+		<Version>0.2.0</Version>
+		<AssemblyVersion>0.2.0.0</AssemblyVersion>
+		<FileVersion>0.2.0.0</FileVersion>
+		<PublishSingleFile>false</PublishSingleFile>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="Assets\appicon.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Velopack" Version="0.0.1298" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3856.49" />
+		<PackageReference Include="PdfSharp" Version="6.1.1" />
+		<PackageReference Include="PdfPig" Version="0.1.14" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Assets\appicon.ico">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
+	</ItemGroup>
+
+</Project>

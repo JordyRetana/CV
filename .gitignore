@@ -1,0 +1,16 @@
+bin/
+obj/
+.vs/
+artifacts/
+*.user
+*.suo
+*.log
+*.pdb
+*.bak
+*.tmp
+appsettings.Development.json
+.env
+*.db
+*.sqlite
+*.sqlite3
+CVDesktopEditor.exe.WebView2/

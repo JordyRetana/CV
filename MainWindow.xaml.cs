@@ -1,0 +1,184 @@
+﻿using System.Windows;
+using Microsoft.Win32;
+using CVDesktopEditor.Models;
+using CVDesktopEditor.Services;
+
+namespace CVDesktopEditor
+{
+    public partial class MainWindow : Window
+    {
+        private readonly ResumeStorageService _storageService;
+        private readonly PdfImportService _pdfImportService;
+        private readonly LicenseService _licenseService;
+        private ResumeStore _store;
+        private LicenseStatus _licenseStatus;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            AppLogger.Info("Main window initialized.");
+            _storageService = new ResumeStorageService();
+            _pdfImportService = new PdfImportService();
+            _licenseService = new LicenseService();
+            _store = _storageService.Load();
+            _licenseStatus = _licenseService.GetStatus();
+            if (_licenseStatus.State == LicenseState.NotActivated)
+                _licenseStatus = _licenseService.StartTrial();
+
+            AppLogger.Info($"License status: {_licenseStatus.State}.");
+            RefreshStatus();
+        }
+
+        private void RefreshStatus()
+        {
+            var esLoaded = string.IsNullOrWhiteSpace(_store.SpanishPdfPath) ? "No cargado" : "Cargado";
+            var enLoaded = string.IsNullOrWhiteSpace(_store.EnglishPdfPath) ? "No cargado" : "Cargado";
+
+            TxtStatus.Text = $"CV Español: {esLoaded}\nCV Inglés: {enLoaded}\nLicencia: {_licenseStatus.Message}";
+        }
+
+        private void BtnImportSpanish_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                Title = "Selecciona tu CV en Español"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    AppLogger.Info($"Importing Spanish CV from {dialog.FileName}.");
+                    var savedPath = _storageService.SavePdfCopy(dialog.FileName, "es");
+                    var parsedData = _pdfImportService.ImportFromPdf(savedPath, false);
+
+                    _store.SpanishPdfPath = savedPath;
+                    _store.Spanish = parsedData;
+
+                    _storageService.Save(_store);
+                    RefreshStatus();
+
+                    MessageBox.Show(
+                        BuildImportSummary(parsedData, false),
+                        "Importación",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex, "Spanish CV import failed.");
+                    MessageBox.Show(
+                        $"No se pudo importar el CV en español.\n\n{ex.Message}",
+                        "Importación",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnImportEnglish_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                Title = "Select your English CV"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    AppLogger.Info($"Importing English CV from {dialog.FileName}.");
+                    var savedPath = _storageService.SavePdfCopy(dialog.FileName, "en");
+                    var parsedData = _pdfImportService.ImportFromPdf(savedPath, true);
+
+                    _store.EnglishPdfPath = savedPath;
+                    _store.English = parsedData;
+
+                    _storageService.Save(_store);
+                    RefreshStatus();
+
+                    MessageBox.Show(
+                        BuildImportSummary(parsedData, true),
+                        "Import",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex, "English CV import failed.");
+                    MessageBox.Show(
+                        $"The English CV could not be imported.\n\n{ex.Message}",
+                        "Import",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnClear_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Esto eliminará los PDFs guardados y los datos locales. ¿Deseas continuar?",
+                "Confirmar",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                _storageService.ClearAll();
+                AppLogger.Info("Local resume data cleared.");
+                _store = _storageService.Load();
+                RefreshStatus();
+                MessageBox.Show("Datos eliminados correctamente.");
+            }
+        }
+
+        private void BtnEditSpanish_Click(object sender, RoutedEventArgs e)
+        {
+            var editor = new ResumeEditorWindow("es");
+            editor.ShowDialog();
+            _store = _storageService.Load();
+            RefreshStatus();
+        }
+
+        private void BtnEditEnglish_Click(object sender, RoutedEventArgs e)
+        {
+            var editor = new ResumeEditorWindow("en");
+            editor.ShowDialog();
+            _store = _storageService.Load();
+            RefreshStatus();
+        }
+
+        private void BtnPreviewSpanish_Click(object sender, RoutedEventArgs e)
+        {
+            _store = _storageService.Load();
+            var preview = new ResumeWebPreviewWindow(_store.Spanish, false);
+            preview.ShowDialog();
+        }
+
+        private void BtnPreviewEnglish_Click(object sender, RoutedEventArgs e)
+        {
+            _store = _storageService.Load();
+            var preview = new ResumeWebPreviewWindow(_store.English, true);
+            preview.ShowDialog();
+        }
+
+        private string BuildImportSummary(ResumeLanguageData data, bool isEnglish)
+        {
+            if (isEnglish)
+            {
+                return
+                    "English CV imported.\n\n" +
+                    $"Detected: {data.Experience.Count} experience item(s), {data.Projects.Count} project(s), {data.Education.Count} education item(s), {data.Skills.Count} skill(s).\n\n" +
+                    "Open the editor tabs to review and adjust anything the PDF format did not expose clearly.";
+            }
+
+            return
+                "CV en español importado.\n\n" +
+                $"Detectado: {data.Experience.Count} experiencia(s), {data.Projects.Count} proyecto(s), {data.Education.Count} educación(es), {data.Skills.Count} habilidad(es).\n\n" +
+                "Abre las pestañas del editor para revisar y ajustar lo que el formato del PDF no haya dejado claro.";
+        }
+    }
+}
