@@ -1,4 +1,7 @@
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -144,6 +147,64 @@ namespace CVDesktopEditor.Services
             return LicenseStatus.Active(state.ExpiresUtc);
         }
 
+        public async Task<LicenseStatus> ActivateOnlineLicenseAsync(string licenseKey, string apiBaseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(licenseKey))
+                return LicenseStatus.NotActivated();
+
+            if (string.IsNullOrWhiteSpace(apiBaseUrl) || !Uri.TryCreate(apiBaseUrl, UriKind.Absolute, out var baseUri))
+                return LicenseStatus.Tampered("License API URL is invalid.");
+
+            try
+            {
+                using var httpClient = new HttpClient
+                {
+                    BaseAddress = new Uri(baseUri.ToString().TrimEnd('/') + "/"),
+                    Timeout = TimeSpan.FromSeconds(20)
+                };
+
+                var appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "development";
+                var response = await httpClient.PostAsJsonAsync("licenses/activate", new
+                {
+                    LicenseKey = licenseKey.Trim(),
+                    DeviceHash = GetDeviceId(),
+                    AppVersion = appVersion
+                });
+
+                if (!response.IsSuccessStatusCode)
+                    return LicenseStatus.Tampered($"License server rejected the request ({(int)response.StatusCode}).");
+
+                var activation = await response.Content.ReadFromJsonAsync<OnlineLicenseActivationResponse>();
+                if (activation?.IsActive != true)
+                    return LicenseStatus.Tampered(activation?.Message ?? "License was not activated.");
+
+                var now = DateTimeOffset.UtcNow;
+                var state = new LocalLicenseState
+                {
+                    Kind = activation.Status.Equals("developer", StringComparison.OrdinalIgnoreCase)
+                        ? LicenseKind.Developer
+                        : LicenseKind.Premium,
+                    DeviceId = GetDeviceId(),
+                    IssuedUtc = now,
+                    LastSeenUtc = now,
+                    ExpiresUtc = activation.ExpiresAt ?? now.AddYears(1),
+                    LicenseKeyFingerprint = Fingerprint(licenseKey.Trim()),
+                    ActivationTokenFingerprint = string.IsNullOrWhiteSpace(activation.ActivationToken)
+                        ? null
+                        : Fingerprint(activation.ActivationToken)
+                };
+
+                SaveState(state);
+                AppLogger.Info("Online license activated.");
+                return LicenseStatus.Active(state.ExpiresUtc);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error(ex, "Online license activation failed.");
+                return LicenseStatus.Tampered("Could not reach the license server.");
+            }
+        }
+
         private void SaveState(LocalLicenseState state)
         {
             state.IntegrityHash = ComputeIntegrityHash(state);
@@ -189,6 +250,7 @@ namespace CVDesktopEditor.Services
                 state.SpanishPdfExports,
                 state.EnglishPdfExports,
                 state.LicenseKeyFingerprint ?? "",
+                state.ActivationTokenFingerprint ?? "",
                 "CVDesktopEditor.LocalLicense.v1");
 
             return Fingerprint(material);
@@ -214,6 +276,7 @@ namespace CVDesktopEditor.Services
     public enum LicenseKind
     {
         Trial,
+        Premium,
         Developer
     }
 
@@ -275,6 +338,7 @@ namespace CVDesktopEditor.Services
         public int SpanishPdfExports { get; set; }
         public int EnglishPdfExports { get; set; }
         public string? LicenseKeyFingerprint { get; set; }
+        public string? ActivationTokenFingerprint { get; set; }
         public string? IntegrityHash { get; set; }
     }
 
@@ -294,5 +358,14 @@ namespace CVDesktopEditor.Services
             IsAllowed = false,
             Message = message
         };
+    }
+
+    internal class OnlineLicenseActivationResponse
+    {
+        public bool IsActive { get; set; }
+        public string Status { get; set; } = "";
+        public DateTimeOffset? ExpiresAt { get; set; }
+        public string? ActivationToken { get; set; }
+        public string Message { get; set; } = "";
     }
 }

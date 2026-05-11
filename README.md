@@ -34,6 +34,8 @@ El instalador queda en:
 artifacts\velopack\stable\CVDesktopEditor-win-Setup.exe
 ```
 
+El nombre exacto puede variar por canal; normalmente queda como `CVDesktopEditor-stable-Setup.exe`.
+
 ## Subir release a GitHub
 
 Configura un token de GitHub en `GITHUB_TOKEN` y ejecuta:
@@ -41,6 +43,13 @@ Configura un token de GitHub en `GITHUB_TOKEN` y ejecuta:
 ```powershell
 .\scripts\upload-velopack-github.ps1 -Version 0.2.1 -Channel stable
 ```
+
+Tambien puedes publicarlo desde GitHub Actions con el workflow `Build and publish desktop release`.
+
+## License API
+
+El backend de licencias esta en `server/CVDesktopEditor.Api`.
+La guia esta en `docs/LicenseBackendSetup.md`.
 
 ## Seguridad
 
@@ -52,3 +61,5 @@ Ver:
 - `docs/ExternalSetupSteps.md`
 - `docs/SupabaseSetup.md`
 - `docs/LicenseApiContract.md`
+- `docs/LicenseBackendSetup.md`
+- `docs/GitHubReleaseSteps.md`

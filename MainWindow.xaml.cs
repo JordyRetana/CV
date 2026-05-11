@@ -165,6 +165,20 @@ namespace CVDesktopEditor
             preview.ShowDialog();
         }
 
+        private void BtnActivateLicense_Click(object sender, RoutedEventArgs e)
+        {
+            var activationWindow = new LicenseActivationWindow
+            {
+                Owner = this
+            };
+
+            if (activationWindow.ShowDialog() == true && activationWindow.ActivatedStatus != null)
+            {
+                _licenseStatus = activationWindow.ActivatedStatus;
+                RefreshStatus();
+            }
+        }
+
         private string BuildImportSummary(ResumeLanguageData data, bool isEnglish)
         {
             if (isEnglish)
