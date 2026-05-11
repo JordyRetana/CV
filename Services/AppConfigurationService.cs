@@ -5,6 +5,8 @@ namespace CVDesktopEditor.Services
 {
     public class AppConfigurationService
     {
+        public const string ProductionLicenseApiBaseUrl = "https://cvdesktopeditor-license-api.onrender.com";
+
         private readonly string _configPath;
 
         public AppConfigurationService()
@@ -29,7 +31,14 @@ namespace CVDesktopEditor.Services
                 }
 
                 var json = File.ReadAllText(_configPath);
-                return JsonSerializer.Deserialize<AppConfiguration>(json) ?? AppConfiguration.CreateDefault();
+                var configuration = JsonSerializer.Deserialize<AppConfiguration>(json) ?? AppConfiguration.CreateDefault();
+                if (IsLocalLicenseApiUrl(configuration.LicenseApiBaseUrl))
+                {
+                    configuration.LicenseApiBaseUrl = ProductionLicenseApiBaseUrl;
+                    Save(configuration);
+                }
+
+                return configuration;
             }
             catch (Exception ex)
             {
@@ -47,6 +56,12 @@ namespace CVDesktopEditor.Services
 
             File.WriteAllText(_configPath, json);
         }
+
+        private static bool IsLocalLicenseApiUrl(string apiUrl)
+        {
+            return apiUrl.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
+                   apiUrl.Contains("localhost", StringComparison.OrdinalIgnoreCase);
+        }
     }
 
     public class AppConfiguration
@@ -55,7 +70,7 @@ namespace CVDesktopEditor.Services
         public bool EnableBetaUpdates { get; set; }
         public bool EnableDiagnosticLogs { get; set; } = true;
         public string? LicenseKeyFingerprint { get; set; }
-        public string LicenseApiBaseUrl { get; set; } = "http://127.0.0.1:5282";
+        public string LicenseApiBaseUrl { get; set; } = AppConfigurationService.ProductionLicenseApiBaseUrl;
 
         public static AppConfiguration CreateDefault()
         {

@@ -13,9 +13,7 @@ namespace CVDesktopEditor
         public LicenseActivationWindow()
         {
             InitializeComponent();
-            var configuration = _configurationService.Load();
-            TxtApiUrl.Text = configuration.LicenseApiBaseUrl;
-            TxtStatus.Text = "Pega una licencia generada desde tu API o panel administrador.";
+            TxtStatus.Text = "Pega la licencia que recibiste para activar la app.";
         }
 
         private async void BtnActivate_Click(object sender, RoutedEventArgs e)
@@ -23,8 +21,6 @@ namespace CVDesktopEditor
             TxtStatus.Text = "Validando licencia...";
 
             var configuration = _configurationService.Load();
-            configuration.LicenseApiBaseUrl = TxtApiUrl.Text.Trim();
-            _configurationService.Save(configuration);
 
             ActivatedStatus = await _licenseService.ActivateOnlineLicenseAsync(
                 TxtLicenseKey.Text,
