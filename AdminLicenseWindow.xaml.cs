@@ -119,7 +119,7 @@ namespace CVDesktopEditor
                 var process = Process.Start(new ProcessStartInfo
                 {
                     FileName = "powershell",
-                    Arguments = $"-ExecutionPolicy Bypass -File \"{buildScript}\" -Version 0.3.2 -Channel stable",
+                    Arguments = $"-ExecutionPolicy Bypass -File \"{buildScript}\" -Version 0.3.3 -Channel stable",
                     WorkingDirectory = projectRoot,
                     UseShellExecute = false,
                     CreateNoWindow = true
