@@ -1,0 +1,18 @@
+CV Desktop Editor
+
+This is a source-available portfolio project by Jordy Retana.
+
+The repository demonstrates a commercial-style desktop application architecture:
+- WPF desktop application
+- ATS-friendly resume PDF generation
+- PDF import and parsing
+- license activation backend
+- Supabase/PostgreSQL persistence
+- Velopack packaging
+- admin and client build flows
+- Render deployment configuration
+
+The source code is visible so companies and reviewers can evaluate implementation quality.
+The code is not open source and is not licensed for reuse, redistribution, resale, or commercial use.
+
+Secrets, production credentials, generated installers, user data, local CV files, and build artifacts are intentionally excluded from the repository.
