@@ -30,27 +30,23 @@ app.MapPost("/licenses/activate", async (
     }
 
     await using var connection = await db.OpenConnectionAsync(cancellationToken);
-    await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
     var license = await FindLicenseAsync(connection, request.LicenseKey, cancellationToken);
     if (license is null)
     {
         await InsertActivationAsync(connection, null, request.DeviceHash, request.AppVersion, "invalid_key", httpContext, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
         return Results.Unauthorized();
     }
 
     if (!license.UserIsActive || !license.Status.Equals("active", StringComparison.OrdinalIgnoreCase))
     {
         await InsertActivationAsync(connection, license.Id, request.DeviceHash, request.AppVersion, "inactive", httpContext, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
         return Results.Json(new LicenseActivationResponse(false, "inactive", license.ExpiresAt, null, "License is inactive."), statusCode: StatusCodes.Status403Forbidden);
     }
 
     if (license.ExpiresAt is not null && license.ExpiresAt <= DateTimeOffset.UtcNow)
     {
         await InsertActivationAsync(connection, license.Id, request.DeviceHash, request.AppVersion, "expired", httpContext, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
         return Results.Json(new LicenseActivationResponse(false, "expired", license.ExpiresAt, null, "License is expired."), statusCode: StatusCodes.Status403Forbidden);
     }
 
@@ -59,13 +55,11 @@ app.MapPost("/licenses/activate", async (
     if (!deviceExists && deviceCount >= license.MaxDevices)
     {
         await InsertActivationAsync(connection, license.Id, request.DeviceHash, request.AppVersion, "device_limit", httpContext, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
         return Results.Json(new LicenseActivationResponse(false, "device_limit", license.ExpiresAt, null, "Device limit reached."), statusCode: StatusCodes.Status403Forbidden);
     }
 
     await UpsertDeviceAsync(connection, license.Id, request.DeviceHash, cancellationToken);
     await InsertActivationAsync(connection, license.Id, request.DeviceHash, request.AppVersion, "activated", httpContext, cancellationToken);
-    await transaction.CommitAsync(cancellationToken);
 
     return Results.Ok(new LicenseActivationResponse(
         true,
@@ -92,7 +86,6 @@ app.MapPost("/admin/licenses", async (
     var licenseKeyHash = HashSecret(licenseKey);
 
     await using var connection = await db.OpenConnectionAsync(cancellationToken);
-    await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
     var userId = await UpsertUserAsync(connection, request.Email, request.FullName, cancellationToken);
     var licenseId = await InsertLicenseAsync(
@@ -105,7 +98,6 @@ app.MapPost("/admin/licenses", async (
         cancellationToken);
 
     await InsertAuditLogAsync(connection, "admin", "license.created", "license", licenseId.ToString(), cancellationToken);
-    await transaction.CommitAsync(cancellationToken);
 
     return Results.Ok(new CreateLicenseResponse(licenseId, userId, licenseKey, request.ExpiresAt));
 });
