@@ -25,7 +25,7 @@ dotnet build CVDesktopEditor.csproj
 ## Crear build Velopack
 
 ```powershell
-.\scripts\build-velopack.ps1 -Version 0.2.6 -Channel stable
+.\scripts\build-velopack.ps1 -Version 0.2.7 -Channel stable
 ```
 
 El instalador queda en:
@@ -41,7 +41,7 @@ El nombre exacto puede variar por canal; normalmente queda como `CVDesktopEditor
 Configura un token de GitHub en `GITHUB_TOKEN` y ejecuta:
 
 ```powershell
-.\scripts\upload-velopack-github.ps1 -Version 0.2.6 -Channel stable
+.\scripts\upload-velopack-github.ps1 -Version 0.2.7 -Channel stable
 ```
 
 Tambien puedes publicarlo desde GitHub Actions con el workflow `Build and publish desktop release`.

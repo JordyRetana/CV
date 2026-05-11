@@ -35,17 +35,72 @@
         </Style>
 
         <Style x:Key="AdminCalendarDayButtonStyle" TargetType="{x:Type CalendarDayButton}">
-            <Setter Property="Foreground" Value="#0D1424"/>
+            <Setter Property="Foreground" Value="#111827"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="MinWidth" Value="34"/>
             <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CalendarDayButton}">
+                        <Border x:Name="DayChrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                CornerRadius="5"
+                                Margin="2">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="DayChrome" Property="Background" Value="#DBEAFE"/>
+                                <Setter Property="Foreground" Value="#0F172A"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="DayChrome" Property="Background" Value="#2563EB"/>
+                                <Setter TargetName="DayChrome" Property="BorderBrush" Value="#60A5FA"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsToday" Value="True">
+                                <Setter TargetName="DayChrome" Property="BorderBrush" Value="#D6B36A"/>
+                            </Trigger>
+                            <Trigger Property="IsInactive" Value="True">
+                                <Setter Property="Foreground" Value="#9CA3AF"/>
+                            </Trigger>
+                            <Trigger Property="IsBlackedOut" Value="True">
+                                <Setter Property="Foreground" Value="#CBD5E1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="AdminCalendarButtonStyle" TargetType="{x:Type CalendarButton}">
-            <Setter Property="Foreground" Value="#0D1424"/>
+            <Setter Property="Foreground" Value="#111827"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CalendarButton}">
+                        <Border x:Name="MonthChrome"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="8,5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="MonthChrome" Property="Background" Value="#DBEAFE"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="AdminCalendarStyle" TargetType="{x:Type Calendar}">

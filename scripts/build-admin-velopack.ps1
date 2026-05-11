@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "0.2.6",
+    [string]$Version = "0.2.7",
     [string]$PackId = "CVDesktopEditorAdmin",
     [string]$Runtime = "win-x64",
     [string]$Channel = "admin"
@@ -11,6 +11,8 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $publishDir = Join-Path $projectRoot "artifacts\publish-admin"
 $releaseDir = Join-Path $projectRoot "artifacts\velopack\$Channel"
 $projectPath = Join-Path $projectRoot "CVDesktopEditor.csproj"
+$clientReleaseDir = Join-Path $projectRoot "artifacts\velopack\stable"
+$clientInstallerPath = Join-Path $clientReleaseDir "CVDesktopEditor-stable-Setup.exe"
 
 if (Test-Path $publishDir) {
     Remove-Item -LiteralPath $publishDir -Recurse -Force
@@ -21,6 +23,10 @@ if (Test-Path $releaseDir) {
 }
 
 New-Item -ItemType Directory -Path $releaseDir | Out-Null
+
+if (-not (Test-Path $clientInstallerPath)) {
+    & (Join-Path $projectRoot "scripts\build-velopack.ps1") -Version $Version -Channel stable
+}
 
 dotnet restore $projectPath
 dotnet publish $projectPath `
@@ -33,6 +39,10 @@ dotnet publish $projectPath `
     /p:FileVersion=$Version.0 `
     /p:DefineConstants=ADMIN_BUILD `
     /p:Product="CV Desktop Editor Admin"
+
+$clientInstallerFolder = Join-Path $publishDir "ClientInstaller"
+New-Item -ItemType Directory -Path $clientInstallerFolder -Force | Out-Null
+Copy-Item -LiteralPath $clientInstallerPath -Destination (Join-Path $clientInstallerFolder "CVDesktopEditor-stable-Setup.exe") -Force
 
 $env:DOTNET_ROLL_FORWARD = "Major"
 

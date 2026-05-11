@@ -92,7 +92,7 @@ namespace CVDesktopEditor
             var projectRoot = FindProjectRoot();
             if (projectRoot == null)
             {
-                TxtResult.Text = "No encontre el proyecto fuente para generar el instalador. Usa GitHub Actions o ejecuta scripts\\build-velopack.ps1 desde el proyecto.";
+                OpenBundledClientInstaller();
                 return;
             }
 
@@ -110,7 +110,7 @@ namespace CVDesktopEditor
                 var process = Process.Start(new ProcessStartInfo
                 {
                     FileName = "powershell",
-                    Arguments = $"-ExecutionPolicy Bypass -File \"{buildScript}\" -Version 0.2.6 -Channel stable",
+                    Arguments = $"-ExecutionPolicy Bypass -File \"{buildScript}\" -Version 0.2.7 -Channel stable",
                     WorkingDirectory = projectRoot,
                     UseShellExecute = false,
                     CreateNoWindow = true
@@ -166,6 +166,35 @@ namespace CVDesktopEditor
             }
 
             return null;
+        }
+
+        private void OpenBundledClientInstaller()
+        {
+            var bundledInstaller = Path.Combine(
+                AppContext.BaseDirectory,
+                "ClientInstaller",
+                "CVDesktopEditor-stable-Setup.exe");
+
+            if (!File.Exists(bundledInstaller))
+            {
+                TxtResult.Text = "No encontre un instalador de cliente incluido en este build admin. Genera el admin installer otra vez desde el proyecto para incluirlo.";
+                return;
+            }
+
+            var folder = Path.GetDirectoryName(bundledInstaller);
+            if (folder == null)
+            {
+                TxtResult.Text = "No pude abrir la ubicacion del instalador incluido.";
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = folder,
+                UseShellExecute = true
+            });
+
+            TxtResult.Text = $"Instalador de cliente listo para enviar:\n{bundledInstaller}";
         }
 
         private sealed class CreateLicenseResponse
