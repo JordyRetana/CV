@@ -4,7 +4,7 @@ using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(GetRequiredSetting(builder.Configuration, "SUPABASE_CONNECTION_STRING")));
+builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(NormalizePostgresConnectionString(GetRequiredSetting(builder.Configuration, "SUPABASE_CONNECTION_STRING"))));
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
@@ -183,6 +183,33 @@ static string GetRequiredSetting(IConfiguration configuration, string key)
     return configuration[key]
         ?? Environment.GetEnvironmentVariable(key)
         ?? throw new InvalidOperationException($"{key} must be configured.");
+}
+
+static string NormalizePostgresConnectionString(string connectionString)
+{
+    if (!connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase) &&
+        !connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
+    {
+        return connectionString;
+    }
+
+    var uri = new Uri(connectionString);
+    var userInfo = uri.UserInfo.Split(':', 2);
+    var username = Uri.UnescapeDataString(userInfo[0]);
+    var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
+    var database = uri.AbsolutePath.TrimStart('/');
+
+    var builder = new NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.Port > 0 ? uri.Port : 5432,
+        Database = database,
+        Username = username,
+        Password = password,
+        SslMode = SslMode.Require
+    };
+
+    return builder.ConnectionString;
 }
 
 static bool IsAdminRequest(HttpContext httpContext, IConfiguration configuration)
