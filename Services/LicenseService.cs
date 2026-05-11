@@ -171,10 +171,10 @@ namespace CVDesktopEditor.Services
                     AppVersion = appVersion
                 });
 
-                if (!response.IsSuccessStatusCode)
-                    return LicenseStatus.Tampered($"License server rejected the request ({(int)response.StatusCode}).");
-
                 var activation = await response.Content.ReadFromJsonAsync<OnlineLicenseActivationResponse>();
+                if (!response.IsSuccessStatusCode)
+                    return LicenseStatus.Tampered(activation?.Message ?? $"License server rejected the request ({(int)response.StatusCode}).");
+
                 if (activation?.IsActive != true)
                     return LicenseStatus.Tampered(activation?.Message ?? "License was not activated.");
 
