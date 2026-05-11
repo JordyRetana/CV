@@ -26,7 +26,7 @@ dotnet run --project .\server\CVDesktopEditor.Api\CVDesktopEditor.Api.csproj
 ```powershell
 Invoke-RestMethod `
   -Method Post `
-  -Uri "http://localhost:5000/admin/database/initialize" `
+  -Uri "http://localhost:5282/admin/database/initialize" `
   -Headers @{ "X-Admin-Key" = $env:ADMIN_API_KEY }
 ```
 
@@ -35,7 +35,7 @@ Invoke-RestMethod `
 ```powershell
 Invoke-RestMethod `
   -Method Post `
-  -Uri "http://localhost:5000/admin/licenses" `
+  -Uri "http://localhost:5282/admin/licenses" `
   -Headers @{ "X-Admin-Key" = $env:ADMIN_API_KEY } `
   -ContentType "application/json" `
   -Body '{
@@ -53,7 +53,7 @@ La respuesta devuelve `licenseKey` una sola vez. Esa es la clave que se pega en 
 
 En la pantalla principal abre **Activar licencia**, coloca:
 
-- URL de API: `http://localhost:5000` durante pruebas.
+- URL de API: `http://localhost:5282` durante pruebas.
 - Clave de licencia: la clave generada por `/admin/licenses`.
 
 Para produccion, publica esta API en un servidor real y usa HTTPS.
