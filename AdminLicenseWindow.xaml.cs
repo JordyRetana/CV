@@ -14,7 +14,10 @@ namespace CVDesktopEditor
         public AdminLicenseWindow()
         {
             InitializeComponent();
-            DateExpires.SelectedDate = DateTime.Today.AddYears(1);
+            var defaultExpiration = DateTime.Today.AddYears(1);
+            TxtExpireDay.Text = defaultExpiration.Day.ToString("00");
+            TxtExpireMonth.Text = defaultExpiration.Month.ToString("00");
+            TxtExpireYear.Text = defaultExpiration.Year.ToString();
             TxtResult.Text = "Genera una licencia y envia esa clave al cliente. El instalador actual esta en artifacts\\velopack\\stable si lo creaste con Velopack.";
         }
 
@@ -35,6 +38,12 @@ namespace CVDesktopEditor
             if (!int.TryParse(TxtMaxDevices.Text, out var maxDevices) || maxDevices < 1)
                 maxDevices = 1;
 
+            if (!TryGetExpirationDate(out var expiresAt))
+            {
+                TxtResult.Text = "Revisa la fecha de expiracion. Usa dia, mes y ano validos.";
+                return;
+            }
+
             try
             {
                 using var httpClient = new HttpClient
@@ -51,7 +60,7 @@ namespace CVDesktopEditor
                     FullName = TxtFullName.Text.Trim(),
                     Kind = "premium",
                     MaxDevices = maxDevices,
-                    ExpiresAt = DateExpires.SelectedDate?.ToUniversalTime()
+                    ExpiresAt = expiresAt
                 });
 
                 var license = await response.Content.ReadFromJsonAsync<CreateLicenseResponse>();
@@ -110,7 +119,7 @@ namespace CVDesktopEditor
                 var process = Process.Start(new ProcessStartInfo
                 {
                     FileName = "powershell",
-                    Arguments = $"-ExecutionPolicy Bypass -File \"{buildScript}\" -Version 0.2.7 -Channel stable",
+                    Arguments = $"-ExecutionPolicy Bypass -File \"{buildScript}\" -Version 0.2.8 -Channel stable",
                     WorkingDirectory = projectRoot,
                     UseShellExecute = false,
                     CreateNoWindow = true
@@ -166,6 +175,28 @@ namespace CVDesktopEditor
             }
 
             return null;
+        }
+
+        private bool TryGetExpirationDate(out DateTimeOffset expiresAt)
+        {
+            expiresAt = default;
+
+            if (!int.TryParse(TxtExpireDay.Text, out var day) ||
+                !int.TryParse(TxtExpireMonth.Text, out var month) ||
+                !int.TryParse(TxtExpireYear.Text, out var year))
+            {
+                return false;
+            }
+
+            try
+            {
+                expiresAt = new DateTimeOffset(new DateTime(year, month, day, 23, 59, 59, DateTimeKind.Local)).ToUniversalTime();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void OpenBundledClientInstaller()
