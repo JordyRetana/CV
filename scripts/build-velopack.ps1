@@ -37,6 +37,7 @@ $env:DOTNET_ROLL_FORWARD = "Major"
 vpk pack `
     --packId $PackId `
     --packVersion $Version `
+    --channel $Channel `
     --packDir $publishDir `
     --mainExe "CVDesktopEditor.exe" `
     --outputDir $releaseDir

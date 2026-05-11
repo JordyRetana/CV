@@ -20,6 +20,21 @@ Recomendado para empezar: Velopack.
 5. Empaqueta la carpeta `artifacts\publish` con Velopack.
 6. Sube los paquetes a GitHub Releases o servidor propio.
 
+Comandos preparados en este repo:
+
+```powershell
+.\scripts\build-velopack.ps1 -Version 0.2.1 -Channel stable
+```
+
+Para subir a GitHub Releases:
+
+```powershell
+$env:GITHUB_TOKEN = "TU_TOKEN_DE_GITHUB"
+.\scripts\upload-velopack-github.ps1 -Version 0.2.1 -Channel stable
+```
+
+El token debe tener permiso de `Contents: Read and write` sobre el repo.
+
 Alternativa Microsoft: MSIX si quieres instalador mas corporativo o Microsoft Store.
 
 ## 2. Certificado de firma digital
