@@ -61,11 +61,7 @@ namespace CVDesktopEditor
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"No se pudo inicializar la vista previa HTML.\n\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                AppDialogWindow.ShowError(this, "Error", $"No se pudo inicializar la vista previa HTML.\n\n{ex.Message}");
             }
         }
 
@@ -83,13 +79,12 @@ namespace CVDesktopEditor
             var exportPermission = _licenseService.CheckPdfExportPermission(_isEnglish);
             if (!exportPermission.IsAllowed)
             {
-                MessageBox.Show(
+                AppDialogWindow.ShowWarning(
+                    this,
+                    "Licencia",
                     _isEnglish
                         ? $"PDF export is blocked.\n\n{exportPermission.Message}"
-                        : $"La exportación PDF está bloqueada.\n\n{exportPermission.Message}",
-                    "Licencia",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                        : $"La exportación PDF está bloqueada.\n\n{exportPermission.Message}");
                 return;
             }
 
@@ -131,32 +126,26 @@ namespace CVDesktopEditor
                 {
                     var licenseStatus = _licenseService.RegisterPdfExport(_isEnglish);
                     AppLogger.Info($"ATS PDF exported to {dialog.FileName}.");
-                    MessageBox.Show(
+                    AppDialogWindow.ShowInfo(
+                        this,
+                        "PDF",
                         _isEnglish
                             ? $"PDF exported successfully.\n\n{licenseStatus.Message}"
-                            : $"PDF exportado correctamente.\n\n{licenseStatus.Message}",
-                        "PDF",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                            : $"PDF exportado correctamente.\n\n{licenseStatus.Message}");
                 }
                 else
                 {
                     AppLogger.Warn($"WebView2 returned false while exporting PDF to {dialog.FileName}.");
-                    MessageBox.Show(
-                        _isEnglish ? "The PDF could not be generated." : "No se pudo generar el PDF.",
+                    AppDialogWindow.ShowWarning(
+                        this,
                         "PDF",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                        _isEnglish ? "The PDF could not be generated." : "No se pudo generar el PDF.");
                 }
             }
             catch (Exception ex)
             {
                 AppLogger.Error(ex, "PDF export failed.");
-                MessageBox.Show(
-                    $"Ocurrió un error al exportar el PDF:\n\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                AppDialogWindow.ShowError(this, "Error", $"Ocurrió un error al exportar el PDF:\n\n{ex.Message}");
             }
         }
 

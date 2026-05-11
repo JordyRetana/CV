@@ -65,20 +65,12 @@ namespace CVDesktopEditor
                     _storageService.Save(_store);
                     RefreshStatus();
 
-                    MessageBox.Show(
-                        BuildImportSummary(parsedData, false),
-                        "Importación",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                    AppDialogWindow.ShowInfo(this, "Importación", BuildImportSummary(parsedData, false));
                 }
                 catch (Exception ex)
                 {
                     AppLogger.Error(ex, "Spanish CV import failed.");
-                    MessageBox.Show(
-                        $"No se pudo importar el CV en español.\n\n{ex.Message}",
-                        "Importación",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    AppDialogWindow.ShowError(this, "Importación", $"No se pudo importar el CV en español.\n\n{ex.Message}");
                 }
             }
         }
@@ -105,39 +97,30 @@ namespace CVDesktopEditor
                     _storageService.Save(_store);
                     RefreshStatus();
 
-                    MessageBox.Show(
-                        BuildImportSummary(parsedData, true),
-                        "Import",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                    AppDialogWindow.ShowInfo(this, "Import", BuildImportSummary(parsedData, true));
                 }
                 catch (Exception ex)
                 {
                     AppLogger.Error(ex, "English CV import failed.");
-                    MessageBox.Show(
-                        $"The English CV could not be imported.\n\n{ex.Message}",
-                        "Import",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    AppDialogWindow.ShowError(this, "Import", $"The English CV could not be imported.\n\n{ex.Message}");
                 }
             }
         }
 
         private void BtnClear_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
-                "Esto eliminará los PDFs guardados y los datos locales. ¿Deseas continuar?",
+            var confirmed = AppDialogWindow.Confirm(
+                this,
                 "Confirmar",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+                "Esto eliminará los PDFs guardados y los datos locales. ¿Deseas continuar?");
 
-            if (result == MessageBoxResult.Yes)
+            if (confirmed)
             {
                 _storageService.ClearAll();
                 AppLogger.Info("Local resume data cleared.");
                 _store = _storageService.Load();
                 RefreshStatus();
-                MessageBox.Show("Datos eliminados correctamente.");
+                AppDialogWindow.ShowInfo(this, "Datos locales", "Datos eliminados correctamente.");
             }
         }
 
@@ -145,16 +128,14 @@ namespace CVDesktopEditor
         {
             var editor = new ResumeEditorWindow("es");
             editor.ShowDialog();
-            _store = _storageService.Load();
-            RefreshStatus();
+            ReloadState();
         }
 
         private void BtnEditEnglish_Click(object sender, RoutedEventArgs e)
         {
             var editor = new ResumeEditorWindow("en");
             editor.ShowDialog();
-            _store = _storageService.Load();
-            RefreshStatus();
+            ReloadState();
         }
 
         private void BtnPreviewSpanish_Click(object sender, RoutedEventArgs e)
@@ -162,6 +143,7 @@ namespace CVDesktopEditor
             _store = _storageService.Load();
             var preview = new ResumeWebPreviewWindow(_store.Spanish, false);
             preview.ShowDialog();
+            ReloadState();
         }
 
         private void BtnPreviewEnglish_Click(object sender, RoutedEventArgs e)
@@ -169,6 +151,7 @@ namespace CVDesktopEditor
             _store = _storageService.Load();
             var preview = new ResumeWebPreviewWindow(_store.English, true);
             preview.ShowDialog();
+            ReloadState();
         }
 
         private void BtnActivateLicense_Click(object sender, RoutedEventArgs e)
@@ -209,6 +192,13 @@ namespace CVDesktopEditor
                 "CV en español importado.\n\n" +
                 $"Detectado: {data.Experience.Count} experiencia(s), {data.Projects.Count} proyecto(s), {data.Education.Count} educación(es), {data.Skills.Count} habilidad(es).\n\n" +
                 "Abre las pestañas del editor para revisar y ajustar lo que el formato del PDF no haya dejado claro.";
+        }
+
+        private void ReloadState()
+        {
+            _store = _storageService.Load();
+            _licenseStatus = _licenseService.GetStatus();
+            RefreshStatus();
         }
     }
 }

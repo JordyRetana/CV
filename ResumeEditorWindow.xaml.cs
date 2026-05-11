@@ -168,7 +168,7 @@ namespace CVDesktopEditor
                 _store.Spanish = CurrentResume;
 
             _storageService.Save(_store);
-            MessageBox.Show("Cambios guardados correctamente.", "Guardar", MessageBoxButton.OK, MessageBoxImage.Information);
+            AppDialogWindow.ShowInfo(this, "Guardar", "Cambios guardados correctamente.");
         }
 
         private void BtnPreview_Click(object sender, RoutedEventArgs e)
