@@ -55,7 +55,7 @@ namespace CVDesktopEditor.Services
         public bool EnableBetaUpdates { get; set; }
         public bool EnableDiagnosticLogs { get; set; } = true;
         public string? LicenseKeyFingerprint { get; set; }
-        public string LicenseApiBaseUrl { get; set; } = "http://localhost:5282";
+        public string LicenseApiBaseUrl { get; set; } = "http://127.0.0.1:5282";
 
         public static AppConfiguration CreateDefault()
         {
