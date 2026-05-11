@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "0.2.9",
+    [string]$Version = "0.3.0",
     [string]$PackId = "CVDesktopEditorAdmin",
     [string]$Runtime = "win-x64",
     [string]$Channel = "admin"
@@ -38,6 +38,7 @@ dotnet publish $projectPath `
     /p:AssemblyVersion=$Version.0 `
     /p:FileVersion=$Version.0 `
     /p:DefineConstants=ADMIN_BUILD `
+    /p:AssemblyName=$PackId `
     /p:Product="CV Desktop Editor Admin"
 
 $clientInstallerFolder = Join-Path $publishDir "ClientInstaller"
@@ -51,7 +52,7 @@ vpk pack `
     --packVersion $Version `
     --channel $Channel `
     --packDir $publishDir `
-    --mainExe "CVDesktopEditor.exe" `
+    --mainExe "$PackId.exe" `
     --outputDir $releaseDir
 
 Write-Host "Admin Velopack release created in $releaseDir"
