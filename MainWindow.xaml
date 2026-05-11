@@ -75,9 +75,11 @@
                         Click="BtnActivateLicense_Click"/>
 
                 <Button Grid.Row="3"
+                        Name="BtnAdmin"
                         Content="Panel admin"
                         Height="44"
                         Margin="0,0,0,14"
+                        Visibility="Collapsed"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Click="BtnAdmin_Click"/>
 

@@ -25,6 +25,10 @@ namespace CVDesktopEditor
             if (_licenseStatus.State == LicenseState.NotActivated)
                 _licenseStatus = _licenseService.StartTrial();
 
+#if DEBUG
+            BtnAdmin.Visibility = Visibility.Visible;
+#endif
+
             AppLogger.Info($"License status: {_licenseStatus.State}.");
             RefreshStatus();
         }
