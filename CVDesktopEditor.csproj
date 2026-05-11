@@ -22,8 +22,11 @@
 	<ItemGroup>
 	  <None Remove="Assets\appicon.ico" />
 	  <Compile Remove="server\**\*.cs" />
+	  <Compile Remove="artifacts\**\*.cs" />
 	  <None Remove="server\**" />
+	  <None Remove="artifacts\**" />
 	  <Content Remove="server\**" />
+	  <Content Remove="artifacts\**" />
 	</ItemGroup>
 
 	<ItemGroup>
