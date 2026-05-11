@@ -12,7 +12,7 @@
             Padding="26"
             CornerRadius="18"
             Background="{StaticResource CardBrush}"
-            BorderBrush="{StaticResource BorderBrush}"
+            BorderBrush="{StaticResource BorderBrushSoft}"
             BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
