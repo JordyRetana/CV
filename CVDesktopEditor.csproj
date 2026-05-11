@@ -12,9 +12,9 @@
 		<Product>CV Desktop Editor</Product>
 		<Company>Jordy Retana</Company>
 		<Authors>Jordy Retana</Authors>
-		<Version>0.3.1</Version>
-		<AssemblyVersion>0.3.1.0</AssemblyVersion>
-		<FileVersion>0.3.1.0</FileVersion>
+		<Version>0.3.2</Version>
+		<AssemblyVersion>0.3.2.0</AssemblyVersion>
+		<FileVersion>0.3.2.0</FileVersion>
 		<PublishSingleFile>false</PublishSingleFile>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>
