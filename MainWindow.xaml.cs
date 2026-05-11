@@ -179,6 +179,16 @@ namespace CVDesktopEditor
             }
         }
 
+        private void BtnAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            var adminWindow = new AdminLicenseWindow
+            {
+                Owner = this
+            };
+
+            adminWindow.ShowDialog();
+        }
+
         private string BuildImportSummary(ResumeLanguageData data, bool isEnglish)
         {
             if (isEnglish)

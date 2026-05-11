@@ -1,0 +1,179 @@
+using System.Diagnostics;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Windows;
+using CVDesktopEditor.Services;
+
+namespace CVDesktopEditor
+{
+    public partial class AdminLicenseWindow : Window
+    {
+        private string _lastLicenseKey = "";
+
+        public AdminLicenseWindow()
+        {
+            InitializeComponent();
+            DateExpires.SelectedDate = DateTime.Today.AddYears(1);
+            TxtResult.Text = "Genera una licencia y envia esa clave al cliente. El instalador actual esta en artifacts\\velopack\\stable si lo creaste con Velopack.";
+        }
+
+        private async void BtnGenerateLicense_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(TxtAdminKey.Password))
+            {
+                TxtResult.Text = "Pega tu ADMIN_API_KEY primero.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(TxtEmail.Text))
+            {
+                TxtResult.Text = "Escribe el correo del cliente.";
+                return;
+            }
+
+            if (!int.TryParse(TxtMaxDevices.Text, out var maxDevices) || maxDevices < 1)
+                maxDevices = 1;
+
+            try
+            {
+                using var httpClient = new HttpClient
+                {
+                    BaseAddress = new Uri(AppConfigurationService.ProductionLicenseApiBaseUrl.TrimEnd('/') + "/"),
+                    Timeout = TimeSpan.FromSeconds(45)
+                };
+
+                httpClient.DefaultRequestHeaders.Add("X-Admin-Key", TxtAdminKey.Password.Trim());
+
+                var response = await httpClient.PostAsJsonAsync("admin/licenses", new
+                {
+                    Email = TxtEmail.Text.Trim(),
+                    FullName = TxtFullName.Text.Trim(),
+                    Kind = "premium",
+                    MaxDevices = maxDevices,
+                    ExpiresAt = DateExpires.SelectedDate?.ToUniversalTime()
+                });
+
+                var license = await response.Content.ReadFromJsonAsync<CreateLicenseResponse>();
+                if (!response.IsSuccessStatusCode || license == null)
+                {
+                    TxtResult.Text = $"No se pudo crear la licencia. Codigo: {(int)response.StatusCode}.";
+                    return;
+                }
+
+                _lastLicenseKey = license.LicenseKey;
+                TxtResult.Text =
+                    $"Licencia creada correctamente.\n\n" +
+                    $"Cliente: {TxtEmail.Text.Trim()}\n" +
+                    $"Expira: {license.ExpiresAt?.LocalDateTime:g}\n" +
+                    $"Clave:\n{license.LicenseKey}\n\n" +
+                    $"Mensaje sugerido:\nHola, esta es tu clave de licencia para activar CV Desktop Editor: {license.LicenseKey}";
+            }
+            catch (Exception ex)
+            {
+                TxtResult.Text = $"No se pudo contactar el servidor de licencias.\n\n{ex.Message}";
+            }
+        }
+
+        private void BtnCopyLicense_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(_lastLicenseKey))
+            {
+                TxtResult.Text = "Todavia no hay una licencia nueva para copiar.";
+                return;
+            }
+
+            Clipboard.SetText(_lastLicenseKey);
+            TxtResult.Text += "\n\nClave copiada al portapapeles.";
+        }
+
+        private async void BtnBuildInstaller_Click(object sender, RoutedEventArgs e)
+        {
+            var projectRoot = FindProjectRoot();
+            if (projectRoot == null)
+            {
+                TxtResult.Text = "No encontre el proyecto fuente para generar el instalador. Usa GitHub Actions o ejecuta scripts\\build-velopack.ps1 desde el proyecto.";
+                return;
+            }
+
+            var buildScript = Path.Combine(projectRoot, "scripts", "build-velopack.ps1");
+            if (!File.Exists(buildScript))
+            {
+                TxtResult.Text = "No encontre scripts\\build-velopack.ps1.";
+                return;
+            }
+
+            try
+            {
+                TxtResult.Text = "Generando instalador Velopack. Esto puede tardar un poco...";
+
+                var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "powershell",
+                    Arguments = $"-ExecutionPolicy Bypass -File \"{buildScript}\" -Version 0.2.3 -Channel stable",
+                    WorkingDirectory = projectRoot,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+
+                if (process == null)
+                {
+                    TxtResult.Text = "No se pudo iniciar PowerShell para generar el instalador.";
+                    return;
+                }
+
+                await process.WaitForExitAsync();
+                if (process.ExitCode != 0)
+                {
+                    TxtResult.Text = $"No se pudo generar el instalador. Codigo de salida: {process.ExitCode}.";
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                TxtResult.Text = $"No se pudo generar el instalador.\n\n{ex.Message}";
+                return;
+            }
+
+            var installerPath = Path.Combine(projectRoot, "artifacts", "velopack", "stable", "CVDesktopEditor-stable-Setup.exe");
+            var folder = Path.GetDirectoryName(installerPath);
+            if (folder == null || !Directory.Exists(folder))
+            {
+                TxtResult.Text = "El build termino, pero no encontre la carpeta del instalador.";
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = folder,
+                UseShellExecute = true
+            });
+
+            TxtResult.Text = $"Instalador listo:\n{installerPath}";
+        }
+
+        private string? FindProjectRoot()
+        {
+            var current = new DirectoryInfo(AppContext.BaseDirectory);
+            while (current != null)
+            {
+                var scriptPath = Path.Combine(current.FullName, "scripts", "build-velopack.ps1");
+                var projectPath = Path.Combine(current.FullName, "CVDesktopEditor.csproj");
+                if (File.Exists(scriptPath) && File.Exists(projectPath))
+                    return current.FullName;
+
+                current = current.Parent;
+            }
+
+            return null;
+        }
+
+        private sealed class CreateLicenseResponse
+        {
+            public Guid LicenseId { get; set; }
+            public Guid UserId { get; set; }
+            public string LicenseKey { get; set; } = "";
+            public DateTimeOffset? ExpiresAt { get; set; }
+        }
+    }
+}

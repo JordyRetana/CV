@@ -13,7 +13,7 @@ namespace CVDesktopEditor
         public LicenseActivationWindow()
         {
             InitializeComponent();
-            TxtStatus.Text = "Pega la licencia que recibiste para activar la app.";
+            TxtStatus.Text = AppConfigurationService.PurchaseMessage;
         }
 
         private async void BtnActivate_Click(object sender, RoutedEventArgs e)

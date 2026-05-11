@@ -10,7 +10,7 @@ namespace CVDesktopEditor.Services
 {
     public class LicenseService
     {
-        public const int MaxTrialPdfExportsPerLanguage = 4;
+        public const int MaxTrialPdfExports = 4;
 
         private readonly string _licensePath;
 
@@ -50,9 +50,7 @@ namespace CVDesktopEditor.Services
                     return LicenseStatus.Expired(state.ExpiresUtc);
 
                 return state.Kind == LicenseKind.Trial
-                    ? LicenseStatus.Trial(
-                        MaxTrialPdfExportsPerLanguage - state.SpanishPdfExports,
-                        MaxTrialPdfExportsPerLanguage - state.EnglishPdfExports)
+                    ? LicenseStatus.Trial(MaxTrialPdfExports - GetTotalPdfExports(state))
                     : LicenseStatus.Active(state.ExpiresUtc);
             }
             catch (Exception ex)
@@ -80,7 +78,7 @@ namespace CVDesktopEditor.Services
 
             SaveState(state);
             AppLogger.Info("Usage-based local trial started.");
-            return LicenseStatus.Trial(MaxTrialPdfExportsPerLanguage, MaxTrialPdfExportsPerLanguage);
+            return LicenseStatus.Trial(MaxTrialPdfExports);
         }
 
         public ExportPermission CheckPdfExportPermission(bool isEnglish)
@@ -96,12 +94,11 @@ namespace CVDesktopEditor.Services
             if (state == null)
                 return ExportPermission.Blocked("Trial state could not be read.");
 
-            var used = isEnglish ? state.EnglishPdfExports : state.SpanishPdfExports;
-            var remaining = MaxTrialPdfExportsPerLanguage - used;
+            var remaining = MaxTrialPdfExports - GetTotalPdfExports(state);
 
             return remaining > 0
-                ? ExportPermission.Allowed($"Trial export allowed. Remaining exports for this language: {remaining}.")
-                : ExportPermission.Blocked("Trial limit reached for this CV language.");
+                ? ExportPermission.Allowed($"Trial export allowed. Remaining total PDF exports: {remaining}.")
+                : ExportPermission.Blocked($"Trial limit reached. {AppConfigurationService.PurchaseMessage}");
         }
 
         public LicenseStatus RegisterPdfExport(bool isEnglish)
@@ -117,6 +114,7 @@ namespace CVDesktopEditor.Services
                 else
                     state.SpanishPdfExports++;
 
+                state.TotalPdfExports = state.SpanishPdfExports + state.EnglishPdfExports;
                 SaveState(state);
                 AppLogger.Info($"Trial PDF export registered. English={isEnglish}.");
             }
@@ -266,6 +264,11 @@ namespace CVDesktopEditor.Services
             return Fingerprint(material);
         }
 
+        private int GetTotalPdfExports(LocalLicenseState state)
+        {
+            return Math.Max(state.TotalPdfExports, state.SpanishPdfExports + state.EnglishPdfExports);
+        }
+
         private string Fingerprint(string value)
         {
             var hash = SHA256.HashData(Encoding.UTF8.GetBytes(value));
@@ -301,10 +304,10 @@ namespace CVDesktopEditor.Services
             Message = "No license active"
         };
 
-        public static LicenseStatus Trial(int spanishExportsRemaining, int englishExportsRemaining) => new()
+        public static LicenseStatus Trial(int exportsRemaining) => new()
         {
             State = LicenseState.Trial,
-            Message = $"Trial: {Math.Max(0, spanishExportsRemaining)} ES exports, {Math.Max(0, englishExportsRemaining)} EN exports remaining"
+            Message = $"Trial: {Math.Max(0, exportsRemaining)} total PDF exports remaining"
         };
 
         public static LicenseStatus Active(DateTimeOffset expiresUtc) => new()
@@ -337,6 +340,7 @@ namespace CVDesktopEditor.Services
         public DateTimeOffset ExpiresUtc { get; set; }
         public int SpanishPdfExports { get; set; }
         public int EnglishPdfExports { get; set; }
+        public int TotalPdfExports { get; set; }
         public string? LicenseKeyFingerprint { get; set; }
         public string? ActivationTokenFingerprint { get; set; }
         public string? IntegrityHash { get; set; }

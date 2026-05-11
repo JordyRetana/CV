@@ -32,6 +32,10 @@
                            Margin="0,8,0,0"
                            Foreground="{StaticResource MutedBrush}"
                            TextWrapping="Wrap"/>
+                <TextBlock Text="Compra o soporte: +506 8713-8971 / jretanamendez@gmail.com"
+                           Margin="0,8,0,0"
+                           Foreground="{StaticResource AccentBrush}"
+                           TextWrapping="Wrap"/>
             </StackPanel>
 
             <StackPanel Grid.Row="2">

@@ -6,6 +6,9 @@ namespace CVDesktopEditor.Services
     public class AppConfigurationService
     {
         public const string ProductionLicenseApiBaseUrl = "https://cvdesktopeditor-license-api.onrender.com";
+        public const string SupportPhone = "+506 8713-8971";
+        public const string SupportEmail = "jretanamendez@gmail.com";
+        public const string PurchaseMessage = "Para comprar o renovar la licencia contacta a Jordy Retana: +506 8713-8971 / jretanamendez@gmail.com.";
 
         private readonly string _configPath;
 
