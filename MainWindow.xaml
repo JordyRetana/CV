@@ -7,7 +7,7 @@
         Icon="/Assets/appicon.ico"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
-        Background="{StaticResource AppBgBrush}">
+        Background="{DynamicResource AppBgBrush}">
 
     <Grid Margin="24">
         <Grid.ColumnDefinitions>
@@ -17,7 +17,7 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0"
-                Background="{StaticResource SidebarBrush}"
+                Background="{DynamicResource SidebarBrush}"
                 CornerRadius="18"
                 Padding="26">
             <Grid>
@@ -48,8 +48,8 @@
                 </StackPanel>
 
                 <Border Grid.Row="1"
-                        Background="{StaticResource SidebarPanelBrush}"
-                        BorderBrush="{StaticResource BorderBrushSoft}"
+                        Background="{DynamicResource SidebarPanelBrush}"
+                        BorderBrush="{DynamicResource BorderBrushSoft}"
                         BorderThickness="1"
                         CornerRadius="14"
                         Padding="18"
@@ -62,7 +62,7 @@
                                    Margin="0,0,0,10"/>
                         <TextBlock Name="TxtStatus"
                                    TextWrapping="Wrap"
-                                   Foreground="{StaticResource SidebarTextBrush}"
+                                   Foreground="{DynamicResource SidebarTextBrush}"
                                    FontSize="14"
                                    LineHeight="22"/>
                     </StackPanel>
@@ -106,7 +106,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Border Background="{StaticResource CardBrush}"
+            <Border Background="{DynamicResource CardBrush}"
                     CornerRadius="18"
                     Padding="26">
                 <StackPanel>
@@ -116,7 +116,7 @@
                     <TextBlock Text="Sube el PDF, revisa los datos detectados y abre el editor de la version que quieras ajustar."
                                Margin="0,8,0,0"
                                FontSize="15"
-                               Foreground="{StaticResource MutedBrush}"
+                               Foreground="{DynamicResource MutedBrush}"
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
@@ -129,7 +129,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Background="{StaticResource CardBrush}"
+                        Background="{DynamicResource CardBrush}"
                         CornerRadius="18"
                         Padding="24">
                     <StackPanel>
@@ -138,7 +138,7 @@
                                    FontWeight="SemiBold"
                                    Margin="0,0,0,6"/>
                         <TextBlock Text="Carga tus archivos originales. La app crea una copia local y trata de ordenar la informacion."
-                                   Foreground="{StaticResource MutedBrush}"
+                                   Foreground="{DynamicResource MutedBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,20"/>
 
@@ -163,7 +163,7 @@
                 </Border>
 
                 <Border Grid.Column="2"
-                        Background="{StaticResource CardBrush}"
+                        Background="{DynamicResource CardBrush}"
                         CornerRadius="18"
                         Padding="24">
                     <StackPanel>
@@ -172,7 +172,7 @@
                                    FontWeight="SemiBold"
                                    Margin="0,0,0,6"/>
                         <TextBlock Text="Abre el editor por idioma o revisa el resultado final antes de generar el PDF."
-                                   Foreground="{StaticResource MutedBrush}"
+                                   Foreground="{DynamicResource MutedBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,20"/>
 

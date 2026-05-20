@@ -35,20 +35,20 @@
 
         <Style TargetType="Window">
             <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         </Style>
 
         <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         </Style>
 
         <Style TargetType="TextBox">
             <Setter Property="Padding" Value="12,9"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="{StaticResource InputBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource InputBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
             <Setter Property="CaretBrush" Value="#D6B36A"/>
             <Setter Property="SelectionBrush" Value="#BFD2FF"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -57,10 +57,10 @@
         <Style TargetType="PasswordBox">
             <Setter Property="Padding" Value="12,9"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="{StaticResource InputBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource InputBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
             <Setter Property="CaretBrush" Value="#D6B36A"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
@@ -69,8 +69,8 @@
             <Setter Property="Height" Value="44"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Background" Value="#0D1424"/>
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}"/>
         </Style>
 
         <Style TargetType="Button">
@@ -125,7 +125,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Border Background="{StaticResource PanelBrush}"
+                            <Border Background="{DynamicResource PanelBrush}"
                                     CornerRadius="10"
                                     Padding="6"
                                     Margin="0,0,0,16">
@@ -142,7 +142,7 @@
         </Style>
 
         <Style TargetType="TabItem">
-            <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="18,10"/>
             <Setter Property="Margin" Value="0,0,6,0"/>
@@ -163,7 +163,7 @@
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource SoftBrush}"/>
+                                <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource SoftBrush}"/>
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryHoverBrush}"/>
                             </Trigger>
                             <MultiTrigger>

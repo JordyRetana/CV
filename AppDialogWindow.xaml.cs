@@ -59,5 +59,11 @@ namespace CVDesktopEditor
             DialogResult = false;
             Close();
         }
+
+        private void BtnWindowClose_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
+        }
     }
 }
