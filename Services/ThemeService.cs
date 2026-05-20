@@ -63,8 +63,14 @@ namespace CVDesktopEditor.Services
 
         private static void Set(string key, string hex)
         {
-            if (Application.Current.Resources[key] is SolidColorBrush brush)
-                brush.Color = (Color)ColorConverter.ConvertFromString(hex);
+            var color = (Color)ColorConverter.ConvertFromString(hex);
+            if (Application.Current.Resources[key] is SolidColorBrush brush && !brush.IsFrozen && !brush.IsSealed)
+            {
+                brush.Color = color;
+                return;
+            }
+
+            Application.Current.Resources[key] = new SolidColorBrush(color);
         }
     }
 }

@@ -17,13 +17,14 @@ namespace CVDesktopEditor
 
         public MainWindow()
         {
-            InitializeComponent();
             AppLogger.Info("Main window initialized.");
             _storageService = new ResumeStorageService();
             _pdfImportService = new PdfImportService();
             _licenseService = new LicenseService();
             _themeService = new ThemeService();
             _configuration = _themeService.ApplySavedTheme();
+
+            InitializeComponent();
             _store = _storageService.Load();
             _licenseStatus = _licenseService.GetStatus();
             if (_licenseStatus.State == LicenseState.NotActivated)
