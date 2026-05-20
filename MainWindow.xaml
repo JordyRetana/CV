@@ -17,13 +17,14 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0"
-                Background="#0C1324"
+                Background="{StaticResource SidebarBrush}"
                 CornerRadius="18"
                 Padding="26">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -47,8 +48,8 @@
                 </StackPanel>
 
                 <Border Grid.Row="1"
-                        Background="#131D31"
-                        BorderBrush="#33405B"
+                        Background="{StaticResource SidebarPanelBrush}"
+                        BorderBrush="{StaticResource BorderBrushSoft}"
                         BorderThickness="1"
                         CornerRadius="14"
                         Padding="18"
@@ -61,7 +62,7 @@
                                    Margin="0,0,0,10"/>
                         <TextBlock Name="TxtStatus"
                                    TextWrapping="Wrap"
-                                   Foreground="#F8FAFC"
+                                   Foreground="{StaticResource SidebarTextBrush}"
                                    FontSize="14"
                                    LineHeight="22"/>
                     </StackPanel>
@@ -75,6 +76,14 @@
                         Click="BtnActivateLicense_Click"/>
 
                 <Button Grid.Row="3"
+                        Name="BtnTheme"
+                        Content="Modo claro"
+                        Height="44"
+                        Margin="0,0,0,10"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Click="BtnTheme_Click"/>
+
+                <Button Grid.Row="4"
                         Name="BtnAdmin"
                         Content="Panel admin"
                         Height="44"
@@ -83,7 +92,7 @@
                         Style="{StaticResource SecondaryButtonStyle}"
                         Click="BtnAdmin_Click"/>
 
-                <TextBlock Grid.Row="4"
+                <TextBlock Grid.Row="5"
                            Text="Los datos se guardan en tu equipo."
                            Foreground="#98A2B3"
                            FontSize="12"/>
@@ -189,8 +198,14 @@
                         <Button Name="BtnPreviewEnglish"
                                 Content="Vista previa ingles"
                                 Height="46"
+                                Margin="0,0,0,12"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Click="BtnPreviewEnglish_Click"/>
+
+                        <Button Name="BtnAiTailor"
+                                Content="Ajustar con IA"
+                                Height="46"
+                                Click="BtnAiTailor_Click"/>
                     </StackPanel>
                 </Border>
             </Grid>

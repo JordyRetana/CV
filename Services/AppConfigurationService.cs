@@ -74,6 +74,7 @@ namespace CVDesktopEditor.Services
         public bool EnableDiagnosticLogs { get; set; } = true;
         public string? LicenseKeyFingerprint { get; set; }
         public string LicenseApiBaseUrl { get; set; } = AppConfigurationService.ProductionLicenseApiBaseUrl;
+        public string ThemeMode { get; set; } = "dark";
 
         public static AppConfiguration CreateDefault()
         {

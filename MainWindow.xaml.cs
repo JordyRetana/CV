@@ -10,8 +10,10 @@ namespace CVDesktopEditor
         private readonly ResumeStorageService _storageService;
         private readonly PdfImportService _pdfImportService;
         private readonly LicenseService _licenseService;
+        private readonly ThemeService _themeService;
         private ResumeStore _store;
         private LicenseStatus _licenseStatus;
+        private AppConfiguration _configuration;
 
         public MainWindow()
         {
@@ -20,6 +22,8 @@ namespace CVDesktopEditor
             _storageService = new ResumeStorageService();
             _pdfImportService = new PdfImportService();
             _licenseService = new LicenseService();
+            _themeService = new ThemeService();
+            _configuration = _themeService.ApplySavedTheme();
             _store = _storageService.Load();
             _licenseStatus = _licenseService.GetStatus();
             if (_licenseStatus.State == LicenseState.NotActivated)
@@ -33,6 +37,7 @@ namespace CVDesktopEditor
 
             AppLogger.Info($"License status: {_licenseStatus.State}.");
             RefreshStatus();
+            RefreshThemeButton();
         }
 
         private void RefreshStatus()
@@ -178,6 +183,33 @@ namespace CVDesktopEditor
             adminWindow.ShowDialog();
         }
 
+        private void BtnTheme_Click(object sender, RoutedEventArgs e)
+        {
+            _configuration = _themeService.ToggleTheme();
+            RefreshThemeButton();
+        }
+
+        private void BtnAiTailor_Click(object sender, RoutedEventArgs e)
+        {
+            ReloadState();
+            if (_licenseStatus.State != LicenseState.Active)
+            {
+                AppDialogWindow.ShowWarning(
+                    this,
+                    "Función premium",
+                    $"El ajuste con IA solo está disponible con una licencia activa.\n\n{AppConfigurationService.PurchaseMessage}");
+                return;
+            }
+
+            var aiWindow = new AiTailorWindow
+            {
+                Owner = this
+            };
+
+            aiWindow.ShowDialog();
+            ReloadState();
+        }
+
         private string BuildImportSummary(ResumeLanguageData data, bool isEnglish)
         {
             if (isEnglish)
@@ -199,6 +231,11 @@ namespace CVDesktopEditor
             _store = _storageService.Load();
             _licenseStatus = _licenseService.GetStatus();
             RefreshStatus();
+        }
+
+        private void RefreshThemeButton()
+        {
+            BtnTheme.Content = ThemeService.IsLight(_configuration.ThemeMode) ? "Modo noche" : "Modo claro";
         }
     }
 }
