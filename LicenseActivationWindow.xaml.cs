@@ -13,7 +13,9 @@ namespace CVDesktopEditor
         public LicenseActivationWindow()
         {
             InitializeComponent();
-            TxtStatus.Text = "Pega tu clave premium. Si necesitas una licencia nueva, contacta al soporte indicado arriba.";
+            WindowSizeService.KeepTaskbarVisible(this);
+            WindowSizeService.FitToWorkArea(this);
+            TxtStatus.Text = "Para comprar o renovar, escribe a jretanamendez@gmail.com.";
         }
 
         private async void BtnActivate_Click(object sender, RoutedEventArgs e)

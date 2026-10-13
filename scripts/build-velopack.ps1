@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "0.4.2",
+    [string]$Version = "0.4.3",
     [string]$PackId = "CVDesktopEditor",
     [string]$Runtime = "win-x64",
     [string]$Channel = "stable"
@@ -11,6 +11,14 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $publishDir = Join-Path $projectRoot "artifacts\publish"
 $releaseDir = Join-Path $projectRoot "artifacts\velopack\$Channel"
 $projectPath = Join-Path $projectRoot "CVDesktopEditor.csproj"
+$artifactsRoot = [IO.Path]::GetFullPath((Join-Path $projectRoot "artifacts")) + [IO.Path]::DirectorySeparatorChar
+
+foreach ($target in @($publishDir, $releaseDir)) {
+    $resolved = [IO.Path]::GetFullPath($target)
+    if (-not $resolved.StartsWith($artifactsRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Generated path escapes the artifacts directory: $resolved"
+    }
+}
 
 if (Test-Path $publishDir) {
     Remove-Item -LiteralPath $publishDir -Recurse -Force
@@ -23,6 +31,7 @@ if (Test-Path $releaseDir) {
 New-Item -ItemType Directory -Path $releaseDir | Out-Null
 
 dotnet restore $projectPath
+if ($LASTEXITCODE -ne 0) { throw "dotnet restore failed." }
 dotnet publish $projectPath `
     --configuration Release `
     --runtime $Runtime `
@@ -31,6 +40,7 @@ dotnet publish $projectPath `
     /p:Version=$Version `
     /p:AssemblyVersion=$Version.0 `
     /p:FileVersion=$Version.0
+if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed." }
 
 $env:DOTNET_ROLL_FORWARD = "Major"
 
@@ -41,5 +51,6 @@ vpk pack `
     --packDir $publishDir `
     --mainExe "CVDesktopEditor.exe" `
     --outputDir $releaseDir
+if ($LASTEXITCODE -ne 0) { throw "vpk pack failed." }
 
 Write-Host "Velopack release created in $releaseDir"

@@ -1,24 +1,36 @@
 <Window x:Class="CVDesktopEditor.ResumeEditorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:CVDesktopEditor.Controls"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Resume Editor"
         Height="920"
         Width="1250"
         Icon="/Assets/appicon.ico"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
-        Background="{StaticResource AppBgBrush}">
+        WindowStyle="None"
+        Background="{DynamicResource AppBgBrush}">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0"/>
+    </shell:WindowChrome.WindowChrome>
 
-    <Grid Margin="22">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="52"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ui:AppTitleBar/>
+    <Grid Grid.Row="1" Margin="28,20,28,24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="16"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="16"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="0"/>
+            <RowDefinition Height="0"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="#0C1324" CornerRadius="18" Padding="24">
+        <Border Grid.Row="0" Background="Transparent" Padding="4,6">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -30,12 +42,12 @@
                                Text="Editor"
                                FontSize="30"
                                FontWeight="Bold"
-                               Foreground="White"/>
+                               Foreground="{DynamicResource TextBrush}"/>
                     <TextBlock x:Name="TxtSubtitle"
                                Margin="0,8,0,0"
                                Text="Edita una seccion a la vez y guarda los cambios localmente."
                                FontSize="14"
-                               Foreground="#D0D5DD"
+                               Foreground="{DynamicResource MutedBrush}"
                                TextWrapping="Wrap"/>
                 </StackPanel>
 
@@ -60,7 +72,7 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="2" Background="{StaticResource CardBrush}" CornerRadius="18" Padding="18">
+        <Border Grid.Row="2" Background="Transparent" Padding="4,0">
             <TabControl>
                 <TabItem Header="Datos">
                     <ScrollViewer>
@@ -125,8 +137,8 @@
                             <ItemsControl ItemsSource="{Binding Experience}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="{StaticResource PanelBrush}"
-                                                BorderBrush="{StaticResource BorderBrushSoft}"
+                                        <Border Background="{DynamicResource PanelBrush}"
+                                                BorderBrush="{DynamicResource BorderBrushSoft}"
                                                 BorderThickness="1"
                                                 CornerRadius="14"
                                                 Padding="18"
@@ -208,7 +220,7 @@
                             <ItemsControl ItemsSource="{Binding Projects}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="14" Padding="18" Margin="0,0,0,14">
+                                        <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrushSoft}" BorderThickness="1" CornerRadius="14" Padding="18" Margin="0,0,0,14">
                                             <StackPanel>
                                                 <Grid Margin="0,0,0,14">
                                                     <Grid.ColumnDefinitions>
@@ -282,7 +294,7 @@
                             <ItemsControl ItemsSource="{Binding Education}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="14" Padding="18" Margin="0,0,0,14">
+                                        <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrushSoft}" BorderThickness="1" CornerRadius="14" Padding="18" Margin="0,0,0,14">
                                             <StackPanel>
                                                 <Grid Margin="0,0,0,14">
                                                     <Grid.ColumnDefinitions>
@@ -357,17 +369,6 @@
             </TabControl>
         </Border>
 
-        <Border Grid.Row="4" Background="{StaticResource CardBrush}" CornerRadius="18" Padding="18">
-            <DockPanel LastChildFill="False">
-                <TextBlock Text="Guarda cuando termines de ajustar la seccion actual."
-                           VerticalAlignment="Center"
-                           Foreground="{StaticResource MutedBrush}"/>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <Button Content="Vista previa" Width="130" Height="42" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}" Click="BtnPreview_Click"/>
-                    <Button Content="Guardar" Width="120" Height="42" Margin="0,0,10,0" Click="BtnSave_Click"/>
-                    <Button Content="Cerrar" Width="120" Height="42" Style="{StaticResource SecondaryButtonStyle}" Click="BtnClose_Click"/>
-                </StackPanel>
-            </DockPanel>
-        </Border>
+    </Grid>
     </Grid>
 </Window>

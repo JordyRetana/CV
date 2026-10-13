@@ -15,6 +15,7 @@ namespace CVDesktopEditor
         public ResumePreviewWindow(ResumeLanguageData resume, bool isEnglish)
         {
             InitializeComponent();
+            WindowSizeService.KeepTaskbarVisible(this);
 
             _resume = resume;
             _isEnglish = isEnglish;
@@ -78,19 +79,14 @@ namespace CVDesktopEditor
                 {
                     _pdfExportService.ExportResumeToPdfHarvard(_resume, dialog.FileName, _isEnglish);
 
-                    MessageBox.Show(
-                        _isEnglish ? "Harvard PDF exported successfully." : "PDF Harvard exportado correctamente.",
-                        "PDF",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                    AppDialogWindow.ShowInfo(this, "PDF",
+                        _isEnglish ? "Harvard PDF exported successfully." : "PDF Harvard exportado correctamente.");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        $"Ocurrió un error al exportar el PDF:\n\n{ex.Message}",
-                        "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    AppLogger.Error(ex, "PDF export failed.");
+                    AppDialogWindow.ShowError(this, "PDF",
+                        $"Ocurrió un error al exportar el PDF:\n\n{ex.Message}");
                 }
             }
         }

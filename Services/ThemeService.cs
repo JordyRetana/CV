@@ -32,33 +32,41 @@ namespace CVDesktopEditor.Services
         {
             if (IsLight(themeMode))
             {
-                Set("AccentBrush", "#B8860B");
-                Set("TextBrush", "#101828");
-                Set("MutedBrush", "#475467");
-                Set("BorderBrushSoft", "#D0D5DD");
+                Set("PrimaryBrush", "#27627E");
+                Set("PrimaryTextBrush", "#FFFFFF");
+                Set("AccentBrush", "#9E6724");
+                Set("TextBrush", "#1E2B30");
+                Set("MutedBrush", "#5F7076");
+                Set("BorderBrushSoft", "#C5D0D3");
                 Set("CardBrush", "#FFFFFF");
-                Set("AppBgBrush", "#EEF2F7");
-                Set("SoftBrush", "#E8EEF8");
-                Set("PanelBrush", "#F8FAFC");
+                Set("AppBgBrush", "#E9EFF0");
+                Set("SoftBrush", "#DDE7E9");
+                Set("PanelBrush", "#F5F8F8");
                 Set("InputBrush", "#FFFFFF");
-                Set("SidebarBrush", "#101828");
-                Set("SidebarPanelBrush", "#182235");
-                Set("SidebarTextBrush", "#F8FAFC");
+                Set("SidebarBrush", "#DCE6E8");
+                Set("SidebarPanelBrush", "#CAD9DD");
+                Set("SidebarTextBrush", "#1E2B30");
+                Set("ChromeBrush", "#DFE9EB");
+                Set("HoverBrush", "#CEDDE0");
                 return;
             }
 
-            Set("AccentBrush", "#D6B36A");
-            Set("TextBrush", "#F8FAFC");
-            Set("MutedBrush", "#A7B0C0");
-            Set("BorderBrushSoft", "#303B52");
-            Set("CardBrush", "#121A2A");
-            Set("AppBgBrush", "#080D18");
-            Set("SoftBrush", "#1B2740");
-            Set("PanelBrush", "#182235");
-            Set("InputBrush", "#0D1424");
-            Set("SidebarBrush", "#0C1324");
-            Set("SidebarPanelBrush", "#131D31");
-            Set("SidebarTextBrush", "#F8FAFC");
+            Set("PrimaryBrush", "#75BFE0");
+            Set("PrimaryTextBrush", "#102027");
+            Set("AccentBrush", "#E5B96F");
+            Set("TextBrush", "#F2F4F4");
+            Set("MutedBrush", "#A9B4B8");
+            Set("BorderBrushSoft", "#354147");
+            Set("CardBrush", "#20272B");
+            Set("AppBgBrush", "#111618");
+            Set("SoftBrush", "#283338");
+            Set("PanelBrush", "#1A2226");
+            Set("InputBrush", "#151D20");
+            Set("SidebarBrush", "#192125");
+            Set("SidebarPanelBrush", "#253035");
+            Set("SidebarTextBrush", "#F2F4F4");
+            Set("ChromeBrush", "#171E21");
+            Set("HoverBrush", "#34434A");
         }
 
         private static void Set(string key, string hex)

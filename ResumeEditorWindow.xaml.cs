@@ -16,6 +16,7 @@ namespace CVDesktopEditor
         public ResumeEditorWindow(string languageCode)
         {
             InitializeComponent();
+            WindowSizeService.KeepTaskbarVisible(this);
 
             _languageCode = languageCode.ToLower();
             _storageService = new ResumeStorageService();

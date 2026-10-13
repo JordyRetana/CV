@@ -25,6 +25,7 @@ namespace CVDesktopEditor
             _configuration = _themeService.ApplySavedTheme();
 
             InitializeComponent();
+            WindowSizeService.KeepTaskbarVisible(this);
             _store = _storageService.Load();
             _licenseStatus = _licenseService.GetStatus();
             if (_licenseStatus.State == LicenseState.NotActivated)
@@ -43,10 +44,15 @@ namespace CVDesktopEditor
 
         private void RefreshStatus()
         {
-            var esLoaded = string.IsNullOrWhiteSpace(_store.SpanishPdfPath) ? "No cargado" : "Cargado";
-            var enLoaded = string.IsNullOrWhiteSpace(_store.EnglishPdfPath) ? "No cargado" : "Cargado";
-
-            TxtStatus.Text = $"CV Español: {esLoaded}\nCV Inglés: {enLoaded}\nLicencia: {_licenseStatus.Message}";
+            TxtSpanishStatus.Text = string.IsNullOrWhiteSpace(_store.SpanishPdfPath) ? "Sin PDF" : "PDF importado";
+            TxtEnglishStatus.Text = string.IsNullOrWhiteSpace(_store.EnglishPdfPath) ? "Sin PDF" : "PDF importado";
+            TxtLicenseStatus.Text = _licenseStatus.State switch
+            {
+                LicenseState.Active => "Premium activa",
+                LicenseState.Trial => $"Prueba: {_licenseStatus.ExportsRemaining} exportaciones disponibles",
+                LicenseState.Expired => "Licencia vencida",
+                _ => "Activación necesaria"
+            };
         }
 
         private void BtnImportSpanish_Click(object sender, RoutedEventArgs e)

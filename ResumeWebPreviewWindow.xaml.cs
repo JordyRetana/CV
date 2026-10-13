@@ -22,6 +22,7 @@ namespace CVDesktopEditor
         public ResumeWebPreviewWindow(ResumeLanguageData resume, bool isEnglish)
         {
             InitializeComponent();
+            WindowSizeService.KeepTaskbarVisible(this);
 
             _resume = resume;
             _isEnglish = isEnglish;

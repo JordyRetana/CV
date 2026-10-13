@@ -9,23 +9,28 @@ namespace CVDesktopEditor
 {
     public partial class AdminLicenseWindow : Window
     {
+        private readonly AdminCredentialService _credentialService = new();
         private string _lastLicenseKey = "";
 
         public AdminLicenseWindow()
         {
             InitializeComponent();
+            WindowSizeService.KeepTaskbarVisible(this);
+            WindowSizeService.FitToWorkArea(this);
             var defaultExpiration = DateTime.Today.AddYears(1);
             TxtExpireDay.Text = defaultExpiration.Day.ToString("00");
             TxtExpireMonth.Text = defaultExpiration.Month.ToString("00");
             TxtExpireYear.Text = defaultExpiration.Year.ToString();
-            TxtResult.Text = "Genera una licencia y envia esa clave al cliente. El instalador actual esta en artifacts\\velopack\\stable si lo creaste con Velopack.";
+            TxtResult.Text = "La licencia generada aparecerá aquí.";
+            RefreshCredentialView();
         }
 
         private async void BtnGenerateLicense_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(TxtAdminKey.Password))
+            var adminKey = _credentialService.Load() ?? TxtAdminKey.Password.Trim();
+            if (string.IsNullOrWhiteSpace(adminKey))
             {
-                TxtResult.Text = "Pega tu ADMIN_API_KEY primero.";
+                TxtResult.Text = "Introduce la clave de administrador para conectar este equipo.";
                 return;
             }
 
@@ -46,13 +51,15 @@ namespace CVDesktopEditor
 
             try
             {
+                BtnGenerateLicense.IsEnabled = false;
+                TxtServerStatus.Text = "Conectando...";
                 using var httpClient = new HttpClient
                 {
                     BaseAddress = new Uri(AppConfigurationService.ProductionLicenseApiBaseUrl.TrimEnd('/') + "/"),
                     Timeout = TimeSpan.FromSeconds(45)
                 };
 
-                httpClient.DefaultRequestHeaders.Add("X-Admin-Key", TxtAdminKey.Password.Trim());
+                httpClient.DefaultRequestHeaders.Add("X-Admin-Key", adminKey);
 
                 var response = await httpClient.PostAsJsonAsync("admin/licenses", new
                 {
@@ -63,14 +70,43 @@ namespace CVDesktopEditor
                     ExpiresAt = expiresAt
                 });
 
-                var license = await response.Content.ReadFromJsonAsync<CreateLicenseResponse>();
-                if (!response.IsSuccessStatusCode || license == null)
+                if (!response.IsSuccessStatusCode)
                 {
-                    TxtResult.Text = $"No se pudo crear la licencia. Codigo: {(int)response.StatusCode}.";
+                    TxtServerStatus.Text = "No conectado";
+                    if (response.StatusCode == System.Net.HttpStatusCode.Forbidden ||
+                        response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        _credentialService.Clear();
+                        TxtAdminKey.Clear();
+                        RefreshCredentialView();
+                        TxtResult.Text = "El servidor rechazó la clave admin. Vuelve a introducirla.";
+                    }
+                    else
+                    {
+                        TxtResult.Text = (int)response.StatusCode >= 500
+                            ? "El servidor de licencias no puede acceder a la base de datos. Espera a que Supabase vuelva a estar activo y vuelve a intentarlo."
+                            : $"No se pudo crear la licencia. Código: {(int)response.StatusCode}.";
+                    }
                     return;
                 }
 
+                var license = await response.Content.ReadFromJsonAsync<CreateLicenseResponse>();
+                if (license == null || string.IsNullOrWhiteSpace(license.LicenseKey))
+                {
+                    TxtServerStatus.Text = "Respuesta inválida";
+                    TxtResult.Text = "El servidor no devolvió una clave de licencia válida.";
+                    return;
+                }
+
+                if (_credentialService.Load() == null)
+                {
+                    _credentialService.Save(adminKey);
+                    TxtAdminKey.Clear();
+                    RefreshCredentialView();
+                }
+
                 _lastLicenseKey = license.LicenseKey;
+                TxtServerStatus.Text = "Licencia creada";
                 TxtResult.Text =
                     $"Licencia creada correctamente.\n\n" +
                     $"Cliente: {TxtEmail.Text.Trim()}\n" +
@@ -80,8 +116,29 @@ namespace CVDesktopEditor
             }
             catch (Exception ex)
             {
+                TxtServerStatus.Text = "Sin conexión";
                 TxtResult.Text = $"No se pudo contactar el servidor de licencias.\n\n{ex.Message}";
             }
+            finally
+            {
+                BtnGenerateLicense.IsEnabled = true;
+            }
+        }
+
+        private void BtnChangeAdminKey_Click(object sender, RoutedEventArgs e)
+        {
+            _credentialService.Clear();
+            TxtAdminKey.Clear();
+            RefreshCredentialView();
+            TxtAdminKey.Focus();
+            TxtServerStatus.Text = "Clave pendiente";
+        }
+
+        private void RefreshCredentialView()
+        {
+            var hasSavedKey = !string.IsNullOrWhiteSpace(_credentialService.Load());
+            CredentialEntryPanel.Visibility = hasSavedKey ? Visibility.Collapsed : Visibility.Visible;
+            CredentialSavedPanel.Visibility = hasSavedKey ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void BtnCopyLicense_Click(object sender, RoutedEventArgs e)
@@ -115,11 +172,12 @@ namespace CVDesktopEditor
             try
             {
                 TxtResult.Text = "Generando instalador Velopack. Esto puede tardar un poco...";
+                var version = GetType().Assembly.GetName().Version?.ToString(3) ?? "0.4.3";
 
                 var process = Process.Start(new ProcessStartInfo
                 {
                     FileName = "powershell",
-                    Arguments = $"-ExecutionPolicy Bypass -File \"{buildScript}\" -Version 0.4.2 -Channel stable",
+                    Arguments = $"-ExecutionPolicy Bypass -File \"{buildScript}\" -Version {version} -Channel stable",
                     WorkingDirectory = projectRoot,
                     UseShellExecute = false,
                     CreateNoWindow = true

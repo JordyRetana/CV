@@ -296,6 +296,7 @@ namespace CVDesktopEditor.Services
     {
         public LicenseState State { get; init; }
         public DateTimeOffset? ExpiresUtc { get; init; }
+        public int? ExportsRemaining { get; init; }
         public string Message { get; init; } = "";
 
         public static LicenseStatus NotActivated() => new()
@@ -307,6 +308,7 @@ namespace CVDesktopEditor.Services
         public static LicenseStatus Trial(int exportsRemaining) => new()
         {
             State = LicenseState.Trial,
+            ExportsRemaining = Math.Max(0, exportsRemaining),
             Message = $"Trial: {Math.Max(0, exportsRemaining)} total PDF exports remaining"
         };
 

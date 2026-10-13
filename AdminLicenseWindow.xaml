@@ -1,224 +1,156 @@
 <Window x:Class="CVDesktopEditor.AdminLicenseWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Panel admin"
-        Height="680"
-        Width="980"
-        MinHeight="620"
-        MinWidth="900"
-        Icon="/Assets/appicon.ico"
-        WindowStartupLocation="CenterOwner"
-        Background="{StaticResource AppBgBrush}">
-    <Grid Margin="24">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
-            <ColumnDefinition Width="18"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        xmlns:ui="clr-namespace:CVDesktopEditor.Controls"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Licencias · CV Desktop Editor"
+        Height="720" Width="900" MinHeight="560" MinWidth="600"
+        Icon="/Assets/appicon.ico" WindowStartupLocation="CenterOwner"
+        WindowStyle="None" Background="{DynamicResource AppBgBrush}">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0"/>
+    </shell:WindowChrome.WindowChrome>
 
-        <Border Grid.Column="0"
-                Background="{StaticResource CardBrush}"
-                BorderBrush="{StaticResource BorderBrushSoft}"
-                BorderThickness="1"
-                CornerRadius="18"
-                Padding="24">
-            <Grid>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="52"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="72"/>
+        </Grid.RowDefinitions>
+        <ui:AppTitleBar/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="42,32,42,38" MaxWidth="880" HorizontalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="28"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="28"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="0"/>
+                    <RowDefinition Height="0"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel>
-                    <Border Width="74"
-                            Height="74"
-                            HorizontalAlignment="Left"
-                            Background="{StaticResource PanelBrush}"
-                            BorderBrush="{StaticResource BorderBrushSoft}"
-                            BorderThickness="1"
-                            CornerRadius="18"
-                            Padding="12">
-                        <Image Source="/Assets/appicon.ico"
-                               Stretch="Uniform"/>
-                    </Border>
-
-                    <TextBlock Text="Admin"
-                               FontSize="34"
-                               FontWeight="Bold"
-                               Margin="0,24,0,0"/>
-                    <TextBlock Text="Licencias"
-                               Foreground="{StaticResource AccentBrush}"
-                               FontSize="20"
-                               FontWeight="SemiBold"
-                               Margin="0,4,0,0"/>
-                    <TextBlock Text="Crea claves premium, prepara instaladores y copia mensajes listos para tus clientes."
-                               Foreground="{StaticResource MutedBrush}"
-                               TextWrapping="Wrap"
-                               Margin="0,18,0,0"
-                               LineHeight="22"/>
-                </StackPanel>
-
-                <TextBlock Grid.Row="1"
-                           Text="No compartas tu clave admin."
-                           Foreground="{StaticResource MutedBrush}"
-                           VerticalAlignment="Bottom"
-                           TextWrapping="Wrap"/>
-            </Grid>
-        </Border>
-
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="18"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="18"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <Border Background="{StaticResource CardBrush}"
-                    BorderBrush="{StaticResource BorderBrushSoft}"
-                    BorderThickness="1"
-                    CornerRadius="18"
-                    Padding="22">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="ADMINISTRACIÓN" FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="Licencias" FontSize="33" FontWeight="SemiBold"
+                                   Margin="0,8,0,0"/>
+                        <TextBlock Text="Crea accesos premium para tus clientes."
+                                   FontSize="14" Foreground="{DynamicResource MutedBrush}"
+                                   Margin="0,6,0,0"/>
+                    </StackPanel>
+                    <TextBlock Name="TxtServerStatus" Grid.Column="1" Text="Listo"
+                               VerticalAlignment="Bottom" Margin="0,0,0,3"
+                               Foreground="{DynamicResource AccentBrush}" FontSize="13"/>
+                </Grid>
+
+                <Border Grid.Row="2" Background="{DynamicResource PanelBrush}"
+                        BorderBrush="{DynamicResource BorderBrushSoft}"
+                        BorderThickness="1" CornerRadius="7" Padding="18">
+                    <Grid>
+                        <StackPanel Name="CredentialEntryPanel">
+                            <TextBlock Text="Conectar panel" FontSize="16" FontWeight="SemiBold"/>
+                            <TextBlock Text="Introduce la clave admin una vez en este equipo."
+                                       FontSize="13" Foreground="{DynamicResource MutedBrush}"
+                                       Margin="0,4,0,12"/>
+                            <PasswordBox Name="TxtAdminKey" Height="42"/>
+                        </StackPanel>
+                        <Grid Name="CredentialSavedPanel" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Clave admin guardada" FontSize="16" FontWeight="SemiBold"/>
+                                <TextBlock Text="La clave está protegida en tu usuario de Windows."
+                                           FontSize="13" Foreground="{DynamicResource MutedBrush}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Content="Cambiar clave" Width="132" Height="40"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="BtnChangeAdminKey_Click"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="22"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="14"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="14"/>
+                        <RowDefinition Height="18"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-
-                    <StackPanel Grid.ColumnSpan="3">
-                        <TextBlock Text="Clave admin"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,6"/>
-                        <PasswordBox Name="TxtAdminKey"
-                                     Height="44"/>
+                    <StackPanel>
+                        <TextBlock Text="Correo del cliente" FontWeight="SemiBold" Margin="0,0,0,7"/>
+                        <TextBox Name="TxtEmail" Height="44"/>
                     </StackPanel>
-
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Nombre del cliente" FontWeight="SemiBold" Margin="0,0,0,7"/>
+                        <TextBox Name="TxtFullName" Height="44"/>
+                    </StackPanel>
                     <StackPanel Grid.Row="2">
-                        <TextBlock Text="Correo del cliente"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,6"/>
-                        <TextBox Name="TxtEmail"
-                                 Height="44"/>
+                        <TextBlock Text="Dispositivos permitidos" FontWeight="SemiBold" Margin="0,0,0,7"/>
+                        <TextBox Name="TxtMaxDevices" Text="1" Height="44"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Row="2"
-                                Grid.Column="2">
-                        <TextBlock Text="Nombre del cliente"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,6"/>
-                        <TextBox Name="TxtFullName"
-                                 Height="44"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="4">
-                        <TextBlock Text="Dispositivos"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,6"/>
-                        <TextBox Name="TxtMaxDevices"
-                                 Text="1"
-                                 Height="44"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="4"
-                                Grid.Column="2">
-                        <TextBlock Text="Fecha de expiracion"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,6"/>
+                    <StackPanel Grid.Row="2" Grid.Column="2">
+                        <TextBlock Text="Vigencia · día / mes / año" FontWeight="SemiBold" Margin="0,0,0,7"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.65*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="0.65*"/>
-                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="0.7*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="0.7*"/>
+                                <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-
-                            <TextBox Name="TxtExpireDay"
-                                     Height="44"/>
-                            <TextBox Name="TxtExpireMonth"
-                                     Grid.Column="2"
-                                     Height="44"/>
-                            <TextBox Name="TxtExpireYear"
-                                     Grid.Column="4"
-                                     Height="44"/>
+                            <TextBox Name="TxtExpireDay" Height="44" MaxLength="2" ToolTip="Día"/>
+                            <TextBox Name="TxtExpireMonth" Grid.Column="2" Height="44" MaxLength="2" ToolTip="Mes"/>
+                            <TextBox Name="TxtExpireYear" Grid.Column="4" Height="44" MaxLength="4" ToolTip="Año"/>
                         </Grid>
                     </StackPanel>
                 </Grid>
-            </Border>
 
-            <Border Grid.Row="2"
-                    Background="{StaticResource CardBrush}"
-                    BorderBrush="{StaticResource BorderBrushSoft}"
-                    BorderThickness="1"
-                    CornerRadius="18"
-                    Padding="22">
-                <Grid>
+                <Grid Grid.Row="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="12"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-
-                    <DockPanel>
-                        <TextBlock Text="Resultado"
-                                   FontSize="22"
-                                   FontWeight="SemiBold"
-                                   DockPanel.Dock="Left"/>
-                        <TextBlock Name="TxtServerStatus"
-                                   Text="Listo"
-                                   Foreground="{StaticResource AccentBrush}"
-                                   HorizontalAlignment="Right"/>
-                    </DockPanel>
-
-                    <Border Grid.Row="2"
-                            Background="#0D1424"
-                            BorderBrush="{StaticResource BorderBrushSoft}"
-                            BorderThickness="1"
-                            CornerRadius="12"
-                            Padding="16">
-                        <TextBox Name="TxtResult"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 IsReadOnly="True"
-                                 BorderThickness="0"
-                                 Background="Transparent"
-                                 VerticalScrollBarVisibility="Auto"/>
-                    </Border>
+                    <TextBlock Text="Resultado" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBox Name="TxtResult" Grid.Row="2" Height="132"
+                             AcceptsReturn="True" TextWrapping="Wrap" IsReadOnly="True"
+                             VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"/>
                 </Grid>
-            </Border>
 
-            <Grid Grid.Row="4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="1.25*"/>
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0"
-                        Content="Crear instalador"
-                        Height="46"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        Click="BtnBuildInstaller_Click"/>
-                <Button Grid.Column="2"
-                        Content="Copiar clave"
-                        Height="46"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        Click="BtnCopyLicense_Click"/>
-                <Button Grid.Column="4"
-                        Content="Generar licencia"
-                        Height="46"
-                        Click="BtnGenerateLicense_Click"/>
             </Grid>
-        </Grid>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Background="{DynamicResource ChromeBrush}"
+                BorderBrush="{DynamicResource BorderBrushSoft}"
+                BorderThickness="0,1,0,0" Padding="22,12">
+            <WrapPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="Abrir instalador" Width="155" Height="44"
+                            Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}"
+                            Click="BtnBuildInstaller_Click"/>
+                    <Button Content="Copiar clave" Width="126" Height="44"
+                            Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}"
+                            Click="BtnCopyLicense_Click"/>
+                    <Button Name="BtnGenerateLicense" Content="Generar licencia" Width="174" Height="44"
+                            Click="BtnGenerateLicense_Click"/>
+            </WrapPanel>
+        </Border>
     </Grid>
 </Window>

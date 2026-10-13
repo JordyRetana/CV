@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Windows;
-using System.Windows.Controls;
 using CVDesktopEditor.Models;
 using CVDesktopEditor.Services;
 
@@ -17,6 +16,8 @@ namespace CVDesktopEditor
         public AiTailorWindow()
         {
             InitializeComponent();
+            WindowSizeService.KeepTaskbarVisible(this);
+            WindowSizeService.FitToWorkArea(this);
             _store = _storageService.Load();
             TxtStatus.Text = "Listo. La IA solo ajusta contenido editable; revisa antes de exportar.";
         }
@@ -81,7 +82,7 @@ namespace CVDesktopEditor
 
         private string GetSelectedLanguage()
         {
-            return (CmbLanguage.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "es";
+            return RbEnglish.IsChecked == true ? "en" : "es";
         }
 
         private string FormatPreview(AiTailorResult result)
