@@ -1,4 +1,4 @@
-using System.Text.Json;
+using System.Text;
 using System.Windows;
 using CVDesktopEditor.Models;
 using CVDesktopEditor.Services;
@@ -87,10 +87,22 @@ namespace CVDesktopEditor
 
         private string FormatPreview(AiTailorResult result)
         {
-            return JsonSerializer.Serialize(result, new JsonSerializerOptions
+            var preview = new StringBuilder();
+            preview.AppendLine("RESUMEN PROFESIONAL");
+            preview.AppendLine(result.ProfessionalSummary.Trim());
+            preview.AppendLine();
+            preview.AppendLine("PROYECTOS");
+            foreach (var project in result.Projects.OrderBy(item => item.SourceIndex))
             {
-                WriteIndented = true
-            });
+                preview.AppendLine($"{project.SourceIndex + 1}. {project.Details.Count} puntos propuestos");
+                foreach (var detail in project.Details)
+                    preview.AppendLine($"  - {detail}");
+            }
+
+            preview.AppendLine();
+            preview.AppendLine("HABILIDADES");
+            preview.AppendLine(string.Join(" | ", result.Skills));
+            return preview.ToString();
         }
     }
 }

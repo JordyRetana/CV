@@ -208,6 +208,12 @@ namespace CVDesktopEditor
                 return;
             }
 
+            if (!_licenseService.TryGetOnlineCredentials(out _, out _))
+            {
+                AppDialogWindow.ShowWarning(this, "IA", "Para usar IA, activa de nuevo tu licencia en esta computadora. La clave se guardara protegida para las proximas sesiones.");
+                return;
+            }
+
             var aiWindow = new AiTailorWindow
             {
                 Owner = this

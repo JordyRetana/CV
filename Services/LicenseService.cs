@@ -13,6 +13,7 @@ namespace CVDesktopEditor.Services
         public const int MaxTrialPdfExports = 4;
 
         private readonly string _licensePath;
+        private readonly string _onlineKeyPath;
 
         public LicenseService()
         {
@@ -22,6 +23,7 @@ namespace CVDesktopEditor.Services
 
             Directory.CreateDirectory(baseFolder);
             _licensePath = Path.Combine(baseFolder, "license-state.json");
+            _onlineKeyPath = Path.Combine(baseFolder, "online-license.dat");
         }
 
         public LicenseStatus GetStatus()
@@ -193,6 +195,9 @@ namespace CVDesktopEditor.Services
                 };
 
                 SaveState(state);
+                var encryptedKey = ProtectedData.Protect(
+                    Encoding.UTF8.GetBytes(licenseKey.Trim()), null, DataProtectionScope.CurrentUser);
+                File.WriteAllBytes(_onlineKeyPath, encryptedKey);
                 AppLogger.Info("Online license activated.");
                 return LicenseStatus.Active(state.ExpiresUtc);
             }
@@ -200,6 +205,28 @@ namespace CVDesktopEditor.Services
             {
                 AppLogger.Error(ex, "Online license activation failed.");
                 return LicenseStatus.Tampered("Could not reach the license server.");
+            }
+        }
+
+        public bool TryGetOnlineCredentials(out string licenseKey, out string deviceHash)
+        {
+            licenseKey = "";
+            deviceHash = "";
+            if (GetStatus().State != LicenseState.Active || !File.Exists(_onlineKeyPath))
+                return false;
+
+            try
+            {
+                var bytes = ProtectedData.Unprotect(
+                    File.ReadAllBytes(_onlineKeyPath), null, DataProtectionScope.CurrentUser);
+                licenseKey = Encoding.UTF8.GetString(bytes);
+                deviceHash = GetDeviceId();
+                return !string.IsNullOrWhiteSpace(licenseKey);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error(ex, "Could not read protected online license key.");
+                return false;
             }
         }
 

@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using CVDesktopEditor.Models;
@@ -9,7 +8,10 @@ namespace CVDesktopEditor.Services
 {
     public class ResumeAiTailorService
     {
-        private const string Model = "llama-3.3-70b-versatile";
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         public async Task<AiTailorResult> TailorAsync(
             ResumeLanguageData resume,
@@ -17,111 +19,82 @@ namespace CVDesktopEditor.Services
             bool isEnglish,
             CancellationToken cancellationToken = default)
         {
-            var apiKey = Environment.GetEnvironmentVariable("GROQ_API_KEY");
-            if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("GROQ_API_KEY is not configured on this computer.");
+            var licenseService = new LicenseService();
+            if (!licenseService.TryGetOnlineCredentials(out var licenseKey, out var deviceHash))
+                throw new InvalidOperationException("Activa de nuevo tu licencia para usar IA.");
 
-            using var httpClient = new HttpClient
-            {
-                BaseAddress = new Uri("https://api.groq.com/openai/v1/"),
-                Timeout = TimeSpan.FromSeconds(60)
-            };
-
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-
-            var language = isEnglish ? "English" : "Spanish";
+            using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(120) };
             var payload = new
             {
-                model = Model,
-                temperature = 0.35,
-                response_format = new { type = "json_object" },
-                messages = new object[]
+                licenseKey,
+                deviceHash,
+                isEnglish,
+                jobDescription,
+                resume = new
                 {
-                    new
-                    {
-                        role = "system",
-                        content =
-                            "You are a senior resume optimization assistant. Return only valid JSON. " +
-                            "Do not invent employers, degrees, dates, certifications, or fake achievements. " +
-                            "Use the candidate's real background and align wording to the job description. " +
-                            "Keep output ATS friendly."
-                    },
-                    new
-                    {
-                        role = "user",
-                        content =
-                            $"Language: {language}\n\n" +
-                            "Return JSON with exactly these properties:\n" +
-                            "{\n" +
-                            "  \"professionalSummary\": \"string, 3-4 lines max\",\n" +
-                            "  \"projects\": [{\"title\":\"string\",\"role\":\"string\",\"location\":\"string\",\"details\":[\"string\"]}],\n" +
-                            "  \"skills\": [\"string\"]\n" +
-                            "}\n\n" +
-                            "Rules:\n" +
-                            "- Preserve real project titles when possible.\n" +
-                            "- Details must be concise bullet statements.\n" +
-                            "- Skills should be keyword-rich, grouped as readable phrases, not a huge paragraph.\n" +
-                            "- Do not include markdown.\n\n" +
-                            $"Current resume JSON:\n{JsonSerializer.Serialize(resume)}\n\n" +
-                            $"Job description:\n{jobDescription}"
-                    }
+                    resume.ProfessionalSummary,
+                    resume.Experience,
+                    resume.Projects,
+                    resume.Education,
+                    resume.Skills
                 }
             };
 
-            var response = await httpClient.PostAsJsonAsync("chat/completions", payload, cancellationToken);
-            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
-
+            using var response = await httpClient.PostAsJsonAsync(
+                AppConfigurationService.ProductionAiApiUrl, payload, cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
             if (!response.IsSuccessStatusCode)
-                throw new InvalidOperationException($"Groq request failed ({(int)response.StatusCode}). {responseText}");
-
-            var chatResponse = JsonSerializer.Deserialize<GroqChatResponse>(responseText, new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
-            });
+                var error = JsonSerializer.Deserialize<AiErrorResponse>(body, JsonOptions);
+                throw new InvalidOperationException(error?.Message ?? $"El servicio de IA respondio con error {(int)response.StatusCode}.");
+            }
 
-            var content = chatResponse?.Choices?.FirstOrDefault()?.Message?.Content;
-            if (string.IsNullOrWhiteSpace(content))
-                throw new InvalidOperationException("Groq returned an empty response.");
+            var result = JsonSerializer.Deserialize<AiTailorResult>(body, JsonOptions)
+                ?? throw new InvalidOperationException("La IA devolvio una respuesta vacia.");
 
-            var result = JsonSerializer.Deserialize<AiTailorResult>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            if (WordCount(result.ProfessionalSummary) < 35 ||
+                result.Projects.Count != resume.Projects.Count ||
+                result.Projects.Select(project => project.SourceIndex).Distinct().Count() != resume.Projects.Count ||
+                result.Projects.Any(project => project.SourceIndex < 0 || project.SourceIndex >= resume.Projects.Count))
+                throw new InvalidOperationException("La respuesta de IA quedo incompleta. Intenta generar el ajuste otra vez.");
 
-            return result ?? throw new InvalidOperationException("The AI response could not be parsed.");
+            return result;
         }
 
         public void ApplyToResume(ResumeLanguageData resume, AiTailorResult result)
         {
-            if (!string.IsNullOrWhiteSpace(result.ProfessionalSummary))
+            if (WordCount(result.ProfessionalSummary) >= 35 &&
+                WordCount(result.ProfessionalSummary) >= WordCount(resume.ProfessionalSummary) * 0.8)
                 resume.ProfessionalSummary = result.ProfessionalSummary.Trim();
 
-            if (result.Projects.Count > 0)
+            foreach (var suggestion in result.Projects)
             {
-                resume.Projects.Clear();
-                foreach (var project in result.Projects.Take(4))
-                {
-                    resume.Projects.Add(new ProjectItem
-                    {
-                        Title = project.Title.Trim(),
-                        Role = project.Role.Trim(),
-                        Location = project.Location.Trim(),
-                        Details = new ObservableCollection<TextLineItem>(
-                            project.Details
-                                .Where(detail => !string.IsNullOrWhiteSpace(detail))
-                                .Take(5)
-                                .Select(detail => new TextLineItem { Value = detail.Trim() }))
-                    });
-                }
+                if (suggestion.SourceIndex < 0 || suggestion.SourceIndex >= resume.Projects.Count)
+                    continue;
+
+                var project = resume.Projects[suggestion.SourceIndex];
+                var details = suggestion.Details
+                    .Concat(project.Details.Select(detail => detail.Value))
+                    .Where(detail => !string.IsNullOrWhiteSpace(detail))
+                    .Select(detail => detail.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Select(detail => new TextLineItem { Value = detail });
+                project.Details = new ObservableCollection<TextLineItem>(details);
             }
 
-            if (result.Skills.Count > 0)
-            {
-                resume.Skills.Clear();
-                foreach (var skill in result.Skills.Where(skill => !string.IsNullOrWhiteSpace(skill)).Take(12))
-                    resume.Skills.Add(new SkillItem { Value = skill.Trim() });
-            }
+            var skills = result.Skills
+                .Concat(resume.Skills.Select(skill => skill.Value))
+                .Where(skill => !string.IsNullOrWhiteSpace(skill))
+                .Select(skill => skill.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Select(skill => new SkillItem { Value = skill });
+            resume.Skills = new ObservableCollection<SkillItem>(skills);
         }
+
+        private static int WordCount(string? value) =>
+            string.IsNullOrWhiteSpace(value)
+                ? 0
+                : value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
     }
 
     public class AiTailorResult
@@ -133,24 +106,12 @@ namespace CVDesktopEditor.Services
 
     public class AiProjectResult
     {
-        public string Title { get; set; } = "";
-        public string Role { get; set; } = "";
-        public string Location { get; set; } = "";
+        public int SourceIndex { get; set; }
         public List<string> Details { get; set; } = new();
     }
 
-    internal class GroqChatResponse
+    internal class AiErrorResponse
     {
-        public List<GroqChoice> Choices { get; set; } = new();
-    }
-
-    internal class GroqChoice
-    {
-        public GroqMessage Message { get; set; } = new();
-    }
-
-    internal class GroqMessage
-    {
-        public string Content { get; set; } = "";
+        public string? Message { get; set; }
     }
 }

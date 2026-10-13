@@ -16,6 +16,14 @@ app.MapGet("/", () => Results.Ok(new
     version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "development"
 }));
 
+app.MapGet("/health/database", async (NpgsqlDataSource db, CancellationToken cancellationToken) =>
+{
+    await using var connection = await db.OpenConnectionAsync(cancellationToken);
+    await using var command = new NpgsqlCommand("select 1;", connection);
+    await command.ExecuteScalarAsync(cancellationToken);
+    return Results.Ok(new { status = "ok" });
+});
+
 app.MapPost("/licenses/activate", async (
     ActivateLicenseRequest request,
     NpgsqlDataSource db,
@@ -67,6 +75,26 @@ app.MapPost("/licenses/activate", async (
         license.ExpiresAt,
         CreateActivationToken(license.Id, request.DeviceHash),
         "License activated."));
+});
+
+app.MapPost("/licenses/verify", async (
+    VerifyLicenseRequest request,
+    NpgsqlDataSource db,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.LicenseKey) ||
+        string.IsNullOrWhiteSpace(request.DeviceHash))
+        return Results.BadRequest(new LicenseErrorResponse("missing_fields", "License key and device hash are required."));
+
+    await using var connection = await db.OpenConnectionAsync(cancellationToken);
+    var license = await FindLicenseAsync(connection, request.LicenseKey, cancellationToken);
+    if (license is null || !license.UserIsActive ||
+        !license.Status.Equals("active", StringComparison.OrdinalIgnoreCase) ||
+        (license.ExpiresAt is not null && license.ExpiresAt <= DateTimeOffset.UtcNow) ||
+        !await DeviceExistsAsync(connection, license.Id, request.DeviceHash, cancellationToken))
+        return Results.Json(new { isActive = false }, statusCode: StatusCodes.Status403Forbidden);
+
+    return Results.Ok(new { isActive = true });
 });
 
 app.MapPost("/admin/licenses", async (
@@ -382,6 +410,7 @@ static async Task InsertAuditLogAsync(
 }
 
 public sealed record ActivateLicenseRequest(string LicenseKey, string DeviceHash, string AppVersion);
+public sealed record VerifyLicenseRequest(string LicenseKey, string DeviceHash);
 public sealed record LicenseActivationResponse(bool IsActive, string Status, DateTimeOffset? ExpiresAt, string? ActivationToken, string Message);
 public sealed record LicenseErrorResponse(string Code, string Message);
 public sealed record CreateLicenseRequest(string Email, string? FullName, string? Kind, int MaxDevices, DateTimeOffset? ExpiresAt);

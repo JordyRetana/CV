@@ -1,0 +1,12 @@
+{
+  "name": "cv-editor-ai",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-12",
+  "workers_dev": true,
+  "vars": {
+    "LICENSE_API_URL": "https://cvdesktopeditor-license-api.onrender.com"
+  },
+  "triggers": {
+    "crons": ["0 */6 * * *"]
+  }
+}
