@@ -226,7 +226,10 @@ static string NormalizePostgresConnectionString(string connectionString)
         Database = database,
         Username = username,
         Password = password,
-        SslMode = SslMode.Require
+        SslMode = SslMode.Require,
+        Pooling = false,
+        Timeout = 15,
+        CommandTimeout = 15
     };
 
     return builder.ConnectionString;
