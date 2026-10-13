@@ -62,7 +62,8 @@ namespace CVDesktopEditor.Services
         {
             var extension = Path.GetExtension(originalPath);
             var destination = Path.Combine(_baseFolder, $"cv-{languageCode}{extension}");
-            File.Copy(originalPath, destination, true);
+            if (!Path.GetFullPath(originalPath).Equals(Path.GetFullPath(destination), StringComparison.OrdinalIgnoreCase))
+                File.Copy(originalPath, destination, true);
             return destination;
         }
 

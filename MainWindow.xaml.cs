@@ -9,6 +9,7 @@ namespace CVDesktopEditor
     {
         private readonly ResumeStorageService _storageService;
         private readonly PdfImportService _pdfImportService;
+        private readonly ResumeAiImportService _aiImportService;
         private readonly LicenseService _licenseService;
         private readonly ThemeService _themeService;
         private ResumeStore _store;
@@ -20,6 +21,7 @@ namespace CVDesktopEditor
             AppLogger.Info("Main window initialized.");
             _storageService = new ResumeStorageService();
             _pdfImportService = new PdfImportService();
+            _aiImportService = new ResumeAiImportService();
             _licenseService = new LicenseService();
             _themeService = new ThemeService();
             _configuration = _themeService.ApplySavedTheme();
@@ -55,67 +57,106 @@ namespace CVDesktopEditor
             };
         }
 
-        private void BtnImportSpanish_Click(object sender, RoutedEventArgs e)
+        private async void BtnImportSpanish_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "PDF Files (*.pdf)|*.pdf",
-                Title = "Selecciona tu CV en Español"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    AppLogger.Info($"Importing Spanish CV from {dialog.FileName}.");
-                    var savedPath = _storageService.SavePdfCopy(dialog.FileName, "es");
-                    var parsedData = _pdfImportService.ImportFromPdf(savedPath, false);
-
-                    _store.SpanishPdfPath = savedPath;
-                    _store.Spanish = parsedData;
-
-                    _storageService.Save(_store);
-                    RefreshStatus();
-
-                    AppDialogWindow.ShowInfo(this, "Importación", BuildImportSummary(parsedData, false));
-                }
-                catch (Exception ex)
-                {
-                    AppLogger.Error(ex, "Spanish CV import failed.");
-                    AppDialogWindow.ShowError(this, "Importación", $"No se pudo importar el CV en español.\n\n{ex.Message}");
-                }
-            }
+            await ImportResumeAsync(false);
         }
 
-        private void BtnImportEnglish_Click(object sender, RoutedEventArgs e)
+        private async void BtnImportEnglish_Click(object sender, RoutedEventArgs e)
+        {
+            await ImportResumeAsync(true);
+        }
+
+        private async Task ImportResumeAsync(bool isEnglish)
         {
             var dialog = new OpenFileDialog
             {
                 Filter = "PDF Files (*.pdf)|*.pdf",
-                Title = "Select your English CV"
+                Title = isEnglish ? "Select your English CV" : "Selecciona tu CV en Español"
             };
+            if (dialog.ShowDialog() != true)
+                return;
 
-            if (dialog.ShowDialog() == true)
+            var useAi = AppDialogWindow.Confirm(
+                this,
+                "Importar PDF",
+                "La importación con IA es gratuita. El texto de este CV se enviará a Cloudflare y Groq para organizar los datos. " +
+                "Si prefieres no enviarlo, elige No para analizarlo solo en este equipo. ¿Usar IA?");
+
+            try
             {
-                try
-                {
-                    AppLogger.Info($"Importing English CV from {dialog.FileName}.");
-                    var savedPath = _storageService.SavePdfCopy(dialog.FileName, "en");
-                    var parsedData = _pdfImportService.ImportFromPdf(savedPath, true);
+                BtnImportSpanish.IsEnabled = false;
+                BtnImportEnglish.IsEnabled = false;
+                var status = isEnglish ? TxtEnglishStatus : TxtSpanishStatus;
+                status.Text = "Analizando...";
 
+                var text = await Task.Run(() => _pdfImportService.ExtractTextFromPdf(dialog.FileName));
+                if (text.Trim().Length < 40)
+                {
+                    AppDialogWindow.ShowWarning(this, "Importación",
+                        "El PDF no contiene texto seleccionable. Parece un escaneo; conviértelo con OCR antes de importarlo.");
+                    return;
+                }
+
+                ResumeLanguageData parsedData;
+                var usedAi = false;
+                if (useAi && text.Length >= 250)
+                {
+                    try
+                    {
+                        parsedData = await _aiImportService.ImportAsync(text, isEnglish);
+                        usedAi = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogger.Error(ex, "AI CV import failed; local import is available.");
+                        if (!AppDialogWindow.Confirm(this, "Importación con IA",
+                            $"No se pudo completar el análisis con IA.\n\n{ex.Message}\n\n¿Deseas intentar la importación local?"))
+                            return;
+                        parsedData = _pdfImportService.ImportFromText(text);
+                    }
+                }
+                else
+                {
+                    if (useAi)
+                        AppDialogWindow.ShowInfo(this, "Importación", "Este CV tiene muy poco texto para IA. Se analizará en este equipo.");
+                    parsedData = _pdfImportService.ImportFromText(text);
+                }
+
+                var review = new ResumeImportReviewWindow(parsedData, System.IO.Path.GetFileName(dialog.FileName), usedAi)
+                {
+                    Owner = this
+                };
+                if (review.ShowDialog() != true)
+                    return;
+
+                _store = _storageService.Load();
+                var savedPath = _storageService.SavePdfCopy(dialog.FileName, isEnglish ? "en" : "es");
+                if (isEnglish)
+                {
                     _store.EnglishPdfPath = savedPath;
                     _store.English = parsedData;
-
-                    _storageService.Save(_store);
-                    RefreshStatus();
-
-                    AppDialogWindow.ShowInfo(this, "Import", BuildImportSummary(parsedData, true));
                 }
-                catch (Exception ex)
+                else
                 {
-                    AppLogger.Error(ex, "English CV import failed.");
-                    AppDialogWindow.ShowError(this, "Import", $"The English CV could not be imported.\n\n{ex.Message}");
+                    _store.SpanishPdfPath = savedPath;
+                    _store.Spanish = parsedData;
                 }
+
+                _storageService.Save(_store);
+                AppLogger.Info($"CV imported with {(usedAi ? "AI" : "local parsing")}.");
+                AppDialogWindow.ShowInfo(this, "Importación", BuildImportSummary(parsedData, isEnglish));
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error(ex, "CV import failed.");
+                AppDialogWindow.ShowError(this, "Importación", $"No se pudo importar el CV.\n\n{ex.Message}");
+            }
+            finally
+            {
+                BtnImportSpanish.IsEnabled = true;
+                BtnImportEnglish.IsEnabled = true;
+                RefreshStatus();
             }
         }
 

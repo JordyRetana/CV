@@ -39,11 +39,12 @@ namespace CVDesktopEditor.Services
 
         public ResumeLanguageData ImportFromPdf(string pdfPath, bool isEnglish)
         {
-            var rawText = ExtractText(pdfPath);
-            var normalizedText = NormalizeText(rawText);
-
-            return ParseResume(normalizedText);
+            return ImportFromText(ExtractTextFromPdf(pdfPath));
         }
+
+        public string ExtractTextFromPdf(string pdfPath) => NormalizeText(ExtractText(pdfPath));
+
+        public ResumeLanguageData ImportFromText(string text) => ParseResume(NormalizeText(text));
 
         private string ExtractText(string pdfPath)
         {

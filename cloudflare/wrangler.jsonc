@@ -3,6 +3,10 @@
   "main": "worker.js",
   "compatibility_date": "2026-10-12",
   "workers_dev": true,
+  "ratelimits": [
+    { "name": "IMPORT_RATE_LIMITER", "namespace_id": "91001", "simple": { "limit": 6, "period": 60 } },
+    { "name": "IMPORT_GLOBAL_LIMITER", "namespace_id": "91002", "simple": { "limit": 30, "period": 60 } }
+  ],
   "vars": {
     "LICENSE_API_URL": "https://cvdesktopeditor-license-api.onrender.com"
   },
