@@ -10,7 +10,8 @@ namespace CVDesktopEditor.Services
         public const string ProductionAiImportApiUrl = "https://cv-editor-ai.jretanamendez.workers.dev/ai/import";
         public const string SupportPhone = "+506 8713-8971";
         public const string SupportEmail = "jretanamendez@gmail.com";
-        public const string PurchaseMessage = "Para comprar o renovar la licencia contacta a Jordy Retana: +506 8713-8971 / jretanamendez@gmail.com.";
+        public const string PurchasePageUrl = "https://jordyretana.blog/cv-desktop-editor/";
+        public const string PurchaseMessage = "Compra o renueva tu licencia en https://jordyretana.blog/cv-desktop-editor/. Soporte: +506 8713-8971 / jretanamendez@gmail.com.";
 
         private readonly string _configPath;
 

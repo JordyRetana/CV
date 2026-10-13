@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows;
 using CVDesktopEditor.Services;
 
@@ -15,7 +16,7 @@ namespace CVDesktopEditor
             InitializeComponent();
             WindowSizeService.KeepTaskbarVisible(this);
             WindowSizeService.FitToWorkArea(this);
-            TxtStatus.Text = "Para comprar o renovar, escribe a jretanamendez@gmail.com.";
+            TxtStatus.Text = "Compra tu licencia en la web o escribe a jretanamendez@gmail.com.";
         }
 
         private async void BtnActivate_Click(object sender, RoutedEventArgs e)
@@ -40,6 +41,22 @@ namespace CVDesktopEditor
         {
             DialogResult = false;
             Close();
+        }
+
+        private void BtnPurchase_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(AppConfigurationService.PurchasePageUrl)
+                {
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error(ex, "Failed to open purchase page.");
+                TxtStatus.Text = $"Abre {AppConfigurationService.PurchasePageUrl} en tu navegador.";
+            }
         }
     }
 }

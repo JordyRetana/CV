@@ -49,9 +49,9 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Soporte: +506 8713-8971"
-                           Foreground="{DynamicResource AccentBrush}" FontSize="13"
-                           VerticalAlignment="Center"/>
+                <Button Content="Comprar licencia" Width="146" Height="42"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Click="BtnPurchase_Click"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Content="Cancelar" Width="104" Height="42"
                             Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}"
