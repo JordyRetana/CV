@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: CV Checkout Compatibility
- * Description: Lets WooCommerce checkout requests from public checkout pages run while UCMM keeps the rest of the site hidden.
- * Version: 1.0.0
+ * Description: Keeps public checkout requests working with UCMM and sends CV Editor carts to their checkout.
+ * Version: 1.1.0
  * Author: Jordy Retana
  */
 
@@ -45,4 +45,22 @@ add_action(
 		}
 	},
 	1
+);
+
+add_filter(
+	'woocommerce_get_checkout_url',
+	static function ( $checkout_url ) {
+		if ( ! function_exists( 'is_cart' ) || ! is_cart() || ! function_exists( 'WC' ) || ! WC()->cart ) {
+			return $checkout_url;
+		}
+
+		foreach ( WC()->cart->get_cart() as $item ) {
+			if ( 1311 === (int) ( $item['product_id'] ?? 0 ) ) {
+				return home_url( '/comprar-cv-desktop-editor/' );
+			}
+		}
+
+		return $checkout_url;
+	},
+	20
 );
