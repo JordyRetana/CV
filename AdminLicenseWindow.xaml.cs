@@ -23,6 +23,7 @@ namespace CVDesktopEditor
             TxtExpireYear.Text = defaultExpiration.Year.ToString();
             TxtResult.Text = "La licencia generada aparecerá aquí.";
             RefreshCredentialView();
+            Loaded += async (_, _) => await RefreshLicensesAsync();
         }
 
         private async void BtnGenerateLicense_Click(object sender, RoutedEventArgs e)
@@ -113,6 +114,7 @@ namespace CVDesktopEditor
                     $"Expira: {license.ExpiresAt?.LocalDateTime:g}\n" +
                     $"Clave:\n{license.LicenseKey}\n\n" +
                     $"Mensaje sugerido:\nHola, esta es tu clave de licencia para activar CV Desktop Editor: {license.LicenseKey}";
+                await RefreshLicensesAsync();
             }
             catch (Exception ex)
             {
@@ -132,6 +134,52 @@ namespace CVDesktopEditor
             RefreshCredentialView();
             TxtAdminKey.Focus();
             TxtServerStatus.Text = "Clave pendiente";
+            LicenseList.ItemsSource = null;
+            TxtLicensesSummary.Text = "Conecta el panel para ver las licencias.";
+        }
+
+        private async void BtnRefreshLicenses_Click(object sender, RoutedEventArgs e) => await RefreshLicensesAsync();
+
+        private async Task RefreshLicensesAsync()
+        {
+            var adminKey = _credentialService.Load();
+            if (string.IsNullOrWhiteSpace(adminKey))
+            {
+                TxtLicensesSummary.Text = "Conecta el panel para ver las licencias.";
+                return;
+            }
+
+            try
+            {
+                using var httpClient = new HttpClient
+                {
+                    BaseAddress = new Uri(AppConfigurationService.ProductionLicenseApiBaseUrl.TrimEnd('/') + "/"),
+                    Timeout = TimeSpan.FromSeconds(45)
+                };
+                httpClient.DefaultRequestHeaders.Add("X-Admin-Key", adminKey);
+                using var response = await httpClient.GetAsync("admin/licenses");
+                if (!response.IsSuccessStatusCode)
+                {
+                    TxtLicensesSummary.Text = $"No se pudo consultar: HTTP {(int)response.StatusCode}.";
+                    return;
+                }
+
+                var licenses = await response.Content.ReadFromJsonAsync<List<AdminLicenseSummary>>() ?? [];
+                LicenseList.ItemsSource = licenses.Select(license => new AdminLicenseItem(
+                    license.Email,
+                    license.FullName ?? "",
+                    license.Status == "active" && license.ExpiresAt <= DateTimeOffset.UtcNow
+                        ? "Vencida"
+                        : license.Status == "active" ? "Activa" : license.Status,
+                    $"{license.ActivatedDevices}/{license.MaxDevices} equipos · " +
+                    (license.ExpiresAt?.LocalDateTime.ToString("d") ?? "Sin vencimiento"))).ToList();
+                TxtLicensesSummary.Text = $"Últimas {licenses.Count} licencias registradas";
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error(ex, "Admin license list could not be loaded.");
+                TxtLicensesSummary.Text = "No se pudo consultar el servidor. Intenta actualizar.";
+            }
         }
 
         private void RefreshCredentialView()
@@ -300,5 +348,17 @@ namespace CVDesktopEditor
             public string LicenseKey { get; set; } = "";
             public DateTimeOffset? ExpiresAt { get; set; }
         }
+
+        private sealed class AdminLicenseSummary
+        {
+            public string Email { get; set; } = "";
+            public string? FullName { get; set; }
+            public string Status { get; set; } = "";
+            public int MaxDevices { get; set; }
+            public int ActivatedDevices { get; set; }
+            public DateTimeOffset? ExpiresAt { get; set; }
+        }
+
+        private sealed record AdminLicenseItem(string Email, string FullName, string StatusLabel, string Detail);
     }
 }

@@ -30,8 +30,8 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="28"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="0"/>
-                    <RowDefinition Height="0"/>
+                    <RowDefinition Height="28"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Grid>
@@ -134,6 +134,52 @@
                              AcceptsReturn="True" TextWrapping="Wrap" IsReadOnly="True"
                              VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"/>
                 </Grid>
+
+                <StackPanel Grid.Row="8">
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Clientes y licencias" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock Name="TxtLicensesSummary" Text="Consultando licencias..."
+                                       FontSize="13" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="Actualizar" Width="110" Height="38"
+                                VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"
+                                Click="BtnRefreshLicenses_Click"/>
+                    </Grid>
+                    <ItemsControl Name="LicenseList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource PanelBrush}"
+                                        BorderBrush="{DynamicResource BorderBrushSoft}"
+                                        BorderThickness="1" CornerRadius="6" Padding="14,11" Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Email}" FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding FullName}" FontSize="12"
+                                                       Foreground="{DynamicResource MutedBrush}"
+                                                       TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="16,0,0,0" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding StatusLabel}" HorizontalAlignment="Right"
+                                                       Foreground="{DynamicResource AccentBrush}"/>
+                                            <TextBlock Text="{Binding Detail}" FontSize="12"
+                                                       Foreground="{DynamicResource MutedBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
 
             </Grid>
         </ScrollViewer>
