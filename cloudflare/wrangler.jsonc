@@ -11,6 +11,6 @@
     "LICENSE_API_URL": "https://cvdesktopeditor-license-api.onrender.com"
   },
   "triggers": {
-    "crons": ["0 */6 * * *"]
+    "crons": ["*/10 * * * *"]
   }
 }

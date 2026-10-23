@@ -187,7 +187,7 @@ namespace CVDesktopEditor.Services
                     DeviceId = GetDeviceId(),
                     IssuedUtc = now,
                     LastSeenUtc = now,
-                    ExpiresUtc = activation.ExpiresAt ?? now.AddYears(1),
+                    ExpiresUtc = activation.ExpiresAt ?? DateTimeOffset.MaxValue,
                     LicenseKeyFingerprint = Fingerprint(licenseKey.Trim()),
                     ActivationTokenFingerprint = string.IsNullOrWhiteSpace(activation.ActivationToken)
                         ? null

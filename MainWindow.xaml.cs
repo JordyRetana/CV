@@ -28,6 +28,7 @@ namespace CVDesktopEditor
 
             InitializeComponent();
             WindowSizeService.KeepTaskbarVisible(this);
+            TaskbarIconService.Apply(this);
             _store = _storageService.Load();
             _licenseStatus = _licenseService.GetStatus();
             if (_licenseStatus.State == LicenseState.NotActivated)

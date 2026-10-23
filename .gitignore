@@ -14,3 +14,4 @@ appsettings.Development.json
 *.sqlite
 *.sqlite3
 CVDesktopEditor.exe.WebView2/
+cloudflare/.wrangler/
