@@ -72,7 +72,7 @@ namespace CVDesktopEditor.Services
                         }
                     }
 
-                    SetTaskbarIdentity(handle, executable, iconFile);
+                    SetTaskbarIdentity(handle);
                     HwndSource.FromHwnd(handle)?.AddHook((IntPtr hwnd, int message,
                         IntPtr wParam, IntPtr lParam, ref bool handled) =>
                     {
@@ -117,19 +117,12 @@ namespace CVDesktopEditor.Services
             };
         }
 
-        private static void SetTaskbarIdentity(IntPtr handle, string executable, string iconFile)
+        private static void SetTaskbarIdentity(IntPtr handle)
         {
             var interfaceId = typeof(IPropertyStore).GUID;
             Marshal.ThrowExceptionForHR(SHGetPropertyStoreForWindow(handle, ref interfaceId, out var store));
             try
             {
-                SetString(store, 2, $"\"{executable}\"");
-                SetString(store, 3, $"{iconFile},0");
-#if ADMIN_BUILD
-                SetString(store, 4, "CV Desktop Editor Admin");
-#else
-                SetString(store, 4, "CV Desktop Editor");
-#endif
                 SetString(store, 5, Program.AppUserModelId);
                 store.Commit();
             }
@@ -145,12 +138,9 @@ namespace CVDesktopEditor.Services
             Marshal.ThrowExceptionForHR(SHGetPropertyStoreForWindow(handle, ref interfaceId, out var store));
             try
             {
-                for (uint propertyId = 2; propertyId <= 5; propertyId++)
-                {
-                    var key = new PropertyKey(AppUserModelFormatId, propertyId);
-                    var empty = new PropVariant();
-                    store.SetValue(ref key, ref empty);
-                }
+                var key = new PropertyKey(AppUserModelFormatId, 5);
+                var empty = new PropVariant();
+                store.SetValue(ref key, ref empty);
 
                 store.Commit();
             }
@@ -181,7 +171,7 @@ namespace CVDesktopEditor.Services
             public uint PropertyId = propertyId;
         }
 
-        [StructLayout(LayoutKind.Explicit)]
+        [StructLayout(LayoutKind.Explicit, Size = 24)]
         private struct PropVariant
         {
             [FieldOffset(0)] public ushort Type;

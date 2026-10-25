@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CVDesktopEditor.Services;
 using PdfSharp.Fonts;
@@ -35,6 +36,8 @@ namespace CVDesktopEditor
             await InitializeApplicationAsync();
 
             var mainWindow = new MainWindow();
+            mainWindow.Icon = BitmapFrame.Create(new Uri("pack://application:,,,/Assets/appicon.ico", UriKind.Absolute));
+            await Task.Yield();
             MainWindow = mainWindow;
             mainWindow.Show();
 
