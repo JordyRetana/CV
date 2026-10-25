@@ -9,11 +9,19 @@ namespace CVDesktopEditor.Services
     {
         private const int WmSetIcon = 0x0080;
         private const int WmDestroy = 0x0002;
+        private const int GclpHicon = -14;
+        private const int GclpHiconSmall = -34;
         private const ushort VtLpwstr = 31;
         private static readonly Guid AppUserModelFormatId = new("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3");
 
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr window, int message, IntPtr size, IntPtr icon);
+
+        [DllImport("user32.dll", EntryPoint = "SetClassLongPtrW", SetLastError = true)]
+        private static extern IntPtr SetClassLongPtr(IntPtr window, int index, IntPtr value);
+
+        [DllImport("user32.dll", EntryPoint = "GetClassLongPtrW")]
+        private static extern IntPtr GetClassLongPtr(IntPtr window, int index);
 
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         private static extern uint ExtractIconEx(string file, int index, out IntPtr largeIcon, out IntPtr smallIcon, uint count);
@@ -30,6 +38,8 @@ namespace CVDesktopEditor.Services
         {
             var smallIcon = IntPtr.Zero;
             var largeIcon = IntPtr.Zero;
+            var previousSmallClassIcon = IntPtr.Zero;
+            var previousLargeClassIcon = IntPtr.Zero;
             var configured = false;
 
             void Configure()
@@ -51,15 +61,41 @@ namespace CVDesktopEditor.Services
                     if (ExtractIconEx(iconFile, 0, out largeIcon, out smallIcon, 1) > 0)
                     {
                         if (smallIcon != IntPtr.Zero)
+                        {
                             SendMessage(handle, WmSetIcon, IntPtr.Zero, smallIcon);
+                            previousSmallClassIcon = SetClassLongPtr(handle, GclpHiconSmall, smallIcon);
+                        }
                         if (largeIcon != IntPtr.Zero)
+                        {
                             SendMessage(handle, WmSetIcon, new IntPtr(1), largeIcon);
+                            previousLargeClassIcon = SetClassLongPtr(handle, GclpHicon, largeIcon);
+                        }
                     }
 
                     SetTaskbarIdentity(handle, executable, iconFile);
-                    HwndSource.FromHwnd(handle)?.AddHook(OnWindowMessage);
+                    HwndSource.FromHwnd(handle)?.AddHook((IntPtr hwnd, int message,
+                        IntPtr wParam, IntPtr lParam, ref bool handled) =>
+                    {
+                        if (message == WmDestroy)
+                        {
+                            try
+                            {
+                                SetClassLongPtr(hwnd, GclpHiconSmall, previousSmallClassIcon);
+                                SetClassLongPtr(hwnd, GclpHicon, previousLargeClassIcon);
+                                ClearTaskbarIdentity(hwnd);
+                            }
+                            catch (Exception ex)
+                            {
+                                AppLogger.Error(ex, "Could not release taskbar identity.");
+                            }
+                        }
+
+                        return IntPtr.Zero;
+                    });
                     configured = true;
-                    AppLogger.Info("Taskbar icon and application identity configured.");
+                    AppLogger.Info($"Taskbar icon configured; class icons: " +
+                        $"{GetClassLongPtr(handle, GclpHiconSmall) != IntPtr.Zero}/" +
+                        $"{GetClassLongPtr(handle, GclpHicon) != IntPtr.Zero}.");
                 }
                 catch (Exception ex)
                 {
@@ -67,9 +103,9 @@ namespace CVDesktopEditor.Services
                 }
             }
 
-            if (new WindowInteropHelper(window).Handle != IntPtr.Zero)
-                Configure();
             window.SourceInitialized += (_, _) => Configure();
+            new WindowInteropHelper(window).EnsureHandle();
+            Configure();
             window.Loaded += (_, _) => Configure();
 
             window.Closed += (_, _) =>
@@ -122,24 +158,6 @@ namespace CVDesktopEditor.Services
             {
                 Marshal.ReleaseComObject(store);
             }
-        }
-
-        private static IntPtr OnWindowMessage(IntPtr handle, int message, IntPtr wParam,
-            IntPtr lParam, ref bool handled)
-        {
-            if (message == WmDestroy)
-            {
-                try
-                {
-                    ClearTaskbarIdentity(handle);
-                }
-                catch (Exception ex)
-                {
-                    AppLogger.Error(ex, "Could not release taskbar identity.");
-                }
-            }
-
-            return IntPtr.Zero;
         }
 
         private static void SetString(IPropertyStore store, uint propertyId, string value)

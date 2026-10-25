@@ -9,4 +9,4 @@ Editor de curriculums en espanol e ingles para Windows. Permite importar un PDF 
 - Envia al comprador el instalador de cliente y su clave individual. No compartas el instalador admin ni la clave de administracion.
 - El instalador admin incluye una copia del instalador de cliente en `ClientInstaller/CVDesktopEditor-stable-Setup.exe` dentro de su carpeta de instalacion.
 
-La version actual es 0.4.11. El instalador no tiene firma digital todavia; Windows puede mostrar una advertencia de procedencia. La firma con un certificado de editor es recomendable antes de distribuirlo ampliamente.
+La version actual es 0.4.12. El instalador no tiene firma digital todavia; Windows puede mostrar una advertencia de procedencia. La firma con un certificado de editor es recomendable antes de distribuirlo ampliamente.
