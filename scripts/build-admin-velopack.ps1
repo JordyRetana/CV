@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "0.4.21",
+    [string]$Version = "0.4.23",
     [string]$PackId = "CVDesktopEditorStudioAdmin",
     [string]$Runtime = "win-x64",
     [string]$Channel = "admin"

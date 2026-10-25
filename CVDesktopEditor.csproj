@@ -12,15 +12,16 @@
 		<Product>CV Desktop Editor</Product>
 		<Company>Jordy Retana</Company>
 		<Authors>Jordy Retana</Authors>
-		<Version>0.4.21</Version>
-		<AssemblyVersion>0.4.21.0</AssemblyVersion>
-		<FileVersion>0.4.21.0</FileVersion>
+		<Version>0.4.23</Version>
+		<AssemblyVersion>0.4.23.0</AssemblyVersion>
+		<FileVersion>0.4.23.0</FileVersion>
 		<PublishSingleFile>false</PublishSingleFile>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <None Remove="Assets\appicon.ico" />
+	  <None Remove="Assets\shortcut-icon.ico" />
 	  <Compile Remove="server\**\*.cs" />
 	  <Compile Remove="artifacts\**\*.cs" />
 	  <None Remove="server\**" />
@@ -42,6 +43,7 @@
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </Resource>
 	  <Content Include="Assets\appicon.ico" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+	  <Content Include="Assets\shortcut-icon.ico" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 
 </Project>

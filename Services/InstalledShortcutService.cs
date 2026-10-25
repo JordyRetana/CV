@@ -32,7 +32,7 @@ namespace CVDesktopEditor.Services
                         StringComparison.OrdinalIgnoreCase))
                     return;
 
-                var icon = Path.Combine(installDirectory, "Assets", "appicon.ico");
+                var icon = Path.Combine(installDirectory, "Assets", "shortcut-icon.ico");
                 if (!File.Exists(icon))
                     return;
 
@@ -69,15 +69,20 @@ namespace CVDesktopEditor.Services
                 var existingLink = (IShellLinkW)existing;
                 existingLink.GetPath(currentTarget, currentTarget.Capacity, IntPtr.Zero, 0);
                 var target = Path.GetFullPath(currentTarget.ToString());
+                var arguments = new StringBuilder(1024);
+                existingLink.GetArguments(arguments, arguments.Capacity);
+                var samePackageLauncher =
+                    string.Equals(Path.GetFileName(target), "Update.exe", StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(Path.GetFileName(Path.GetDirectoryName(target)), PackageId, StringComparison.OrdinalIgnoreCase) &&
+                    arguments.ToString().Equals($"start {ExecutableName}", StringComparison.Ordinal);
                 if (!target.Equals(Path.GetFullPath(executable), StringComparison.OrdinalIgnoreCase) &&
-                    !target.Equals(Path.GetFullPath(launcher), StringComparison.OrdinalIgnoreCase))
+                    !target.Equals(Path.GetFullPath(launcher), StringComparison.OrdinalIgnoreCase) &&
+                    !samePackageLauncher)
                     return;
 
                 if (target.Equals(Path.GetFullPath(launcher), StringComparison.OrdinalIgnoreCase))
                 {
-                    var arguments = new StringBuilder(1024);
                     var iconPath = new StringBuilder(1024);
-                    existingLink.GetArguments(arguments, arguments.Capacity);
                     existingLink.GetIconLocation(iconPath, iconPath.Capacity, out var iconIndex);
                     if (arguments.ToString().Equals($"start {ExecutableName}", StringComparison.Ordinal) &&
                         iconPath.ToString().Equals(icon, StringComparison.OrdinalIgnoreCase) &&

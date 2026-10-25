@@ -49,7 +49,7 @@ dotnet build CVDesktopEditor.csproj
 ## Crear build Velopack
 
 ```powershell
-.\scripts\build-velopack.ps1 -Version 0.4.21 -Channel stable
+.\scripts\build-velopack.ps1 -Version 0.4.23 -Channel stable
 ```
 
 El instalador queda en:
