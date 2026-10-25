@@ -4,9 +4,10 @@ Editor de curriculums en espanol e ingles para Windows. Permite importar un PDF 
 
 ## Entrega a clientes
 
-- Instalador para clientes: `artifacts/velopack/stable/CVDesktopEditor-stable-Setup.exe`.
+- Instalador para clientes: `artifacts/velopack/stable/CVDesktopEditorClient-stable-Setup.exe`.
+- Instalador admin: `artifacts/velopack/admin/CVDesktopEditorStudioAdmin-admin-Setup.exe`. Ambos usan carpetas de instalacion separadas de los datos locales para evitar asociaciones de icono danadas y proteger los CV guardados.
 - La version de prueba permite cuatro exportaciones PDF en total, entre ambos idiomas. Despues se activa con una clave generada desde el panel admin.
 - Envia al comprador el instalador de cliente y su clave individual. No compartas el instalador admin ni la clave de administracion.
-- El instalador admin incluye una copia del instalador de cliente en `ClientInstaller/CVDesktopEditor-stable-Setup.exe` dentro de su carpeta de instalacion.
+- El instalador admin incluye una copia del instalador de cliente en `ClientInstaller/CVDesktopEditorClient-stable-Setup.exe` dentro de su carpeta de instalacion.
 
-La version actual es 0.4.15. El instalador no tiene firma digital todavia; Windows puede mostrar una advertencia de procedencia. La firma con un certificado de editor es recomendable antes de distribuirlo ampliamente.
+La version actual es 0.4.21. El instalador no tiene firma digital todavia; Windows puede mostrar una advertencia de procedencia. La firma con un certificado de editor es recomendable antes de distribuirlo ampliamente.

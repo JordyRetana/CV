@@ -1,6 +1,6 @@
 param(
-    [string]$Version = "0.4.15",
-    [string]$PackId = "CVDesktopEditorAdmin",
+    [string]$Version = "0.4.21",
+    [string]$PackId = "CVDesktopEditorStudioAdmin",
     [string]$Runtime = "win-x64",
     [string]$Channel = "admin"
 )
@@ -12,7 +12,7 @@ $publishDir = Join-Path $projectRoot "artifacts\publish-admin"
 $releaseDir = Join-Path $projectRoot "artifacts\velopack\$Channel"
 $projectPath = Join-Path $projectRoot "CVDesktopEditor.csproj"
 $clientReleaseDir = Join-Path $projectRoot "artifacts\velopack\stable"
-$clientInstallerPath = Join-Path $clientReleaseDir "CVDesktopEditor-stable-Setup.exe"
+$clientInstallerPath = Join-Path $clientReleaseDir "CVDesktopEditorClient-stable-Setup.exe"
 $artifactsRoot = [IO.Path]::GetFullPath((Join-Path $projectRoot "artifacts")) + [IO.Path]::DirectorySeparatorChar
 
 foreach ($target in @($publishDir, $releaseDir, $clientReleaseDir)) {
@@ -52,7 +52,7 @@ if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed." }
 
 $clientInstallerFolder = Join-Path $publishDir "ClientInstaller"
 New-Item -ItemType Directory -Path $clientInstallerFolder -Force | Out-Null
-Copy-Item -LiteralPath $clientInstallerPath -Destination (Join-Path $clientInstallerFolder "CVDesktopEditor-stable-Setup.exe") -Force
+Copy-Item -LiteralPath $clientInstallerPath -Destination (Join-Path $clientInstallerFolder "CVDesktopEditorClient-stable-Setup.exe") -Force
 
 $env:DOTNET_ROLL_FORWARD = "Major"
 

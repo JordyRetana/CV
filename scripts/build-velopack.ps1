@@ -1,6 +1,6 @@
 param(
-    [string]$Version = "0.4.15",
-    [string]$PackId = "CVDesktopEditor",
+    [string]$Version = "0.4.21",
+    [string]$PackId = "CVDesktopEditorClient",
     [string]$Runtime = "win-x64",
     [string]$Channel = "stable"
 )

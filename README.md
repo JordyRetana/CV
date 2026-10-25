@@ -49,16 +49,16 @@ dotnet build CVDesktopEditor.csproj
 ## Crear build Velopack
 
 ```powershell
-.\scripts\build-velopack.ps1 -Version 0.4.2 -Channel stable
+.\scripts\build-velopack.ps1 -Version 0.4.21 -Channel stable
 ```
 
 El instalador queda en:
 
 ```text
-artifacts\velopack\stable\CVDesktopEditor-win-Setup.exe
+artifacts\velopack\stable\CVDesktopEditorClient-stable-Setup.exe
 ```
 
-El nombre exacto puede variar por canal; normalmente queda como `CVDesktopEditor-stable-Setup.exe`.
+El nombre exacto puede variar por canal; para stable queda como `CVDesktopEditorClient-stable-Setup.exe`.
 
 ## Subir release a GitHub
 

@@ -11,8 +11,6 @@ namespace CVDesktopEditor.Services
         private const int WmDestroy = 0x0002;
         private const int GclpHicon = -14;
         private const int GclpHiconSmall = -34;
-        private const ushort VtLpwstr = 31;
-        private static readonly Guid AppUserModelFormatId = new("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3");
 
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr window, int message, IntPtr size, IntPtr icon);
@@ -25,10 +23,6 @@ namespace CVDesktopEditor.Services
 
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         private static extern uint ExtractIconEx(string file, int index, out IntPtr largeIcon, out IntPtr smallIcon, uint count);
-
-        [DllImport("shell32.dll")]
-        private static extern int SHGetPropertyStoreForWindow(IntPtr window, ref Guid interfaceId,
-            [MarshalAs(UnmanagedType.Interface)] out IPropertyStore store);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -72,7 +66,6 @@ namespace CVDesktopEditor.Services
                         }
                     }
 
-                    SetTaskbarIdentity(handle);
                     HwndSource.FromHwnd(handle)?.AddHook((IntPtr hwnd, int message,
                         IntPtr wParam, IntPtr lParam, ref bool handled) =>
                     {
@@ -82,11 +75,10 @@ namespace CVDesktopEditor.Services
                             {
                                 SetClassLongPtr(hwnd, GclpHiconSmall, previousSmallClassIcon);
                                 SetClassLongPtr(hwnd, GclpHicon, previousLargeClassIcon);
-                                ClearTaskbarIdentity(hwnd);
                             }
                             catch (Exception ex)
                             {
-                                AppLogger.Error(ex, "Could not release taskbar identity.");
+                                AppLogger.Error(ex, "Could not release taskbar icon.");
                             }
                         }
 
@@ -117,77 +109,5 @@ namespace CVDesktopEditor.Services
             };
         }
 
-        private static void SetTaskbarIdentity(IntPtr handle)
-        {
-            var interfaceId = typeof(IPropertyStore).GUID;
-            Marshal.ThrowExceptionForHR(SHGetPropertyStoreForWindow(handle, ref interfaceId, out var store));
-            try
-            {
-                SetString(store, 5, Program.AppUserModelId);
-                store.Commit();
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(store);
-            }
-        }
-
-        private static void ClearTaskbarIdentity(IntPtr handle)
-        {
-            var interfaceId = typeof(IPropertyStore).GUID;
-            Marshal.ThrowExceptionForHR(SHGetPropertyStoreForWindow(handle, ref interfaceId, out var store));
-            try
-            {
-                var key = new PropertyKey(AppUserModelFormatId, 5);
-                var empty = new PropVariant();
-                store.SetValue(ref key, ref empty);
-
-                store.Commit();
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(store);
-            }
-        }
-
-        private static void SetString(IPropertyStore store, uint propertyId, string value)
-        {
-            var key = new PropertyKey(AppUserModelFormatId, propertyId);
-            var variant = new PropVariant { Type = VtLpwstr, Value = Marshal.StringToCoTaskMemUni(value) };
-            try
-            {
-                store.SetValue(ref key, ref variant);
-            }
-            finally
-            {
-                Marshal.FreeCoTaskMem(variant.Value);
-            }
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct PropertyKey(Guid formatId, uint propertyId)
-        {
-            public Guid FormatId = formatId;
-            public uint PropertyId = propertyId;
-        }
-
-        [StructLayout(LayoutKind.Explicit, Size = 24)]
-        private struct PropVariant
-        {
-            [FieldOffset(0)] public ushort Type;
-            [FieldOffset(8)] public IntPtr Value;
-        }
-
-        [ComImport]
-        [Guid("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99")]
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        private interface IPropertyStore
-        {
-            void GetCount(out uint count);
-            void GetAt(uint index, out PropertyKey key);
-            void GetValue(ref PropertyKey key, out PropVariant value);
-            void SetValue(ref PropertyKey key, ref PropVariant value);
-            void Commit();
-        }
     }
 }

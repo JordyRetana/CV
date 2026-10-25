@@ -250,7 +250,7 @@ namespace CVDesktopEditor
                 return;
             }
 
-            var installerPath = Path.Combine(projectRoot, "artifacts", "velopack", "stable", "CVDesktopEditor-stable-Setup.exe");
+            var installerPath = Path.Combine(projectRoot, "artifacts", "velopack", "stable", "CVDesktopEditorClient-stable-Setup.exe");
             var folder = Path.GetDirectoryName(installerPath);
             if (folder == null || !Directory.Exists(folder))
             {
@@ -307,11 +307,11 @@ namespace CVDesktopEditor
 
         private void OpenBundledClientInstaller()
         {
-            var bundledInstaller = Path.Combine(AppContext.BaseDirectory, "ClientInstaller", "CVDesktopEditor-stable-Setup.exe");
+            var bundledInstaller = Path.Combine(AppContext.BaseDirectory, "ClientInstaller", "CVDesktopEditorClient-stable-Setup.exe");
             var fallbackInstaller = Path.GetFullPath(Path.Combine(
                 AppContext.BaseDirectory,
                 "..", "..", "..",
-                "artifacts", "velopack", "stable", "CVDesktopEditor-stable-Setup.exe"));
+                "artifacts", "velopack", "stable", "CVDesktopEditorClient-stable-Setup.exe"));
 
             var installerPath = File.Exists(bundledInstaller)
                 ? bundledInstaller
