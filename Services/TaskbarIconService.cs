@@ -36,6 +36,25 @@ namespace CVDesktopEditor.Services
             var previousLargeClassIcon = IntPtr.Zero;
             var configured = false;
 
+            void Reapply()
+            {
+                if (!configured)
+                    return;
+
+                var handle = new WindowInteropHelper(window).Handle;
+                if (smallIcon != IntPtr.Zero)
+                {
+                    SendMessage(handle, WmSetIcon, IntPtr.Zero, smallIcon);
+                    SetClassLongPtr(handle, GclpHiconSmall, smallIcon);
+                }
+
+                if (largeIcon != IntPtr.Zero)
+                {
+                    SendMessage(handle, WmSetIcon, new IntPtr(1), largeIcon);
+                    SetClassLongPtr(handle, GclpHicon, largeIcon);
+                }
+            }
+
             void Configure()
             {
                 if (configured)
@@ -47,7 +66,7 @@ namespace CVDesktopEditor.Services
                     if (string.IsNullOrWhiteSpace(executable))
                         return;
 
-                    var iconFile = Path.Combine(AppContext.BaseDirectory, "Assets", "appicon.ico");
+                    var iconFile = Path.Combine(AppContext.BaseDirectory, "Assets", "shortcut-icon.ico");
                     if (!File.Exists(iconFile))
                         iconFile = executable;
 
@@ -98,7 +117,13 @@ namespace CVDesktopEditor.Services
             window.SourceInitialized += (_, _) => Configure();
             new WindowInteropHelper(window).EnsureHandle();
             Configure();
-            window.Loaded += (_, _) => Configure();
+            window.Loaded += (_, _) => Reapply();
+            window.ContentRendered += (_, _) => Reapply();
+#if !ADMIN_BUILD
+            window.ContentRendered += (_, _) => WindowTaskbarIdentityService.Apply(
+                new WindowInteropHelper(window).Handle, InstalledShortcutService.StableIconPath);
+#endif
+            window.Activated += (_, _) => Reapply();
 
             window.Closed += (_, _) =>
             {

@@ -5,7 +5,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="CV Desktop Editor"
         Height="720" Width="1100" MinHeight="520" MinWidth="620"
-        Icon="/Assets/appicon.ico"
+        Icon="/Assets/shortcut-icon.ico"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
         WindowStyle="None"

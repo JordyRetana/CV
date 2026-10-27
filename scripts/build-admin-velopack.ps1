@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "0.4.23",
+    [string]$Version = "0.4.27",
     [string]$PackId = "CVDesktopEditorStudioAdmin",
     [string]$Runtime = "win-x64",
     [string]$Channel = "admin"
@@ -61,7 +61,7 @@ vpk pack `
     --packVersion $Version `
     --packTitle "CV Desktop Editor Admin" `
     --packAuthors "Jordy Retana" `
-    --icon (Join-Path $projectRoot "Assets\appicon.ico") `
+    --icon (Join-Path $projectRoot "Assets\shortcut-icon.ico") `
     --channel $Channel `
     --packDir $publishDir `
     --mainExe "$PackId.exe" `

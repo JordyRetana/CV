@@ -19,6 +19,10 @@ namespace CVDesktopEditor.Services
 
         private static readonly Guid ShellLinkClsid = new("00021401-0000-0000-C000-000000000046");
 
+        internal static string StableIconPath => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".cvdesktopeditor", "app-icon.ico");
+
         public static void Repair()
         {
             try
@@ -32,9 +36,15 @@ namespace CVDesktopEditor.Services
                         StringComparison.OrdinalIgnoreCase))
                     return;
 
-                var icon = Path.Combine(installDirectory, "Assets", "shortcut-icon.ico");
-                if (!File.Exists(icon))
+                var packagedIcon = Path.Combine(installDirectory, "Assets", "shortcut-icon.ico");
+                if (!File.Exists(packagedIcon))
                     return;
+
+                var icon = StableIconPath;
+                Directory.CreateDirectory(Path.GetDirectoryName(icon)!);
+                if (!File.Exists(icon) ||
+                    !File.ReadAllBytes(icon).AsSpan().SequenceEqual(File.ReadAllBytes(packagedIcon)))
+                    File.Copy(packagedIcon, icon, true);
 
                 var startMenu = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs", ShortcutName);
